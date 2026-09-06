@@ -107,6 +107,10 @@ export function checkScopeAndPathTraversal(val: string): { matched: boolean; det
   return { matched: false };
 }
 
+import { getKnownConfigPaths, patchConfigFile, unpatchConfigFile, watchAndAutoArmor } from './config-guard.js';
+import { startDaemon, stopDaemon, statusDaemon } from './daemon.js';
+import { analyzeSemanticIntent } from './slm-guard.js';
+
 /**
  * Recursively scans any value (object, array, string) across all 4 defense tiers.
  */
@@ -133,6 +137,12 @@ function containsSensitiveData(value: unknown): { matched: boolean; pattern?: st
     const entropyCheck = checkHighEntropy(value);
     if (entropyCheck.matched) {
       return { matched: true, pattern: entropyCheck.details, tier: 'Tier 2 (Shannon Entropy)' };
+    }
+
+    // Tier 4: Semantic NLP / SLM Adversarial Intent Check
+    const slmCheck = analyzeSemanticIntent(value);
+    if (slmCheck.isThreat) {
+      return { matched: true, pattern: slmCheck.reason, tier: 'Tier 4 (SLM / Neural Guardrail)' };
     }
 
     return { matched: false };
@@ -220,9 +230,6 @@ function formatShellArg(arg: string): string {
   }
   return arg;
 }
-
-import { getKnownConfigPaths, patchConfigFile, unpatchConfigFile, watchAndAutoArmor } from './config-guard.js';
-import { startDaemon, stopDaemon, statusDaemon } from './daemon.js';
 
 function formatLogLine(rawLine: string, isVerbose: boolean): string {
   const trimmed = rawLine.trim();
@@ -537,6 +544,7 @@ async function main(): Promise<void> {
         const name = typeof tool?.name === 'string' ? tool.name : '';
         const textToScan = `${name} ${description}`;
 
+        // 1. Direct Pattern Match
         let matchedPattern: string | undefined;
         for (const pattern of PROMPT_INJECTION_PATTERNS) {
           if (pattern.test(textToScan)) {
@@ -546,10 +554,19 @@ async function main(): Promise<void> {
         }
 
         if (matchedPattern) {
-          console.error(`[MCP Sentinel] STRIPPED tool '${tool?.name || 'unnamed'}' [Tier 4 Prompt Injection matched: ${matchedPattern}]`);
+          console.error(`[MCP Sentinel] STRIPPED tool '${tool?.name || 'unnamed'}' [Tier 4 Prompt Injection: ${matchedPattern}]`);
           logLiveTraffic('SANITIZED', `Stripped tool '${tool?.name || 'unnamed'}' [Tier 4 Prompt Injection: ${matchedPattern}]`, tool);
           return false;
         }
+
+        // 2. SLM & Semantic NLP Intent Check
+        const slmResult = analyzeSemanticIntent(textToScan);
+        if (slmResult.isThreat) {
+          console.error(`[MCP Sentinel] STRIPPED tool '${tool?.name || 'unnamed'}' [Tier 4 Neural/SLM Guard: ${slmResult.reason}]`);
+          logLiveTraffic('SANITIZED', `Stripped tool '${tool?.name || 'unnamed'}' [Tier 4 Neural Guardrail: ${slmResult.reason}]`, tool);
+          return false;
+        }
+
         return true;
       });
 
