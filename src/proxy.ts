@@ -19,12 +19,12 @@ function logLiveTraffic(direction: 'INBOUND' | 'OUTBOUND' | 'BLOCKED' | 'SANITIZ
 
   try {
     fs.appendFileSync(LIVE_LOG_FILE, entry, 'utf-8');
-  } catch {}
+  } catch { }
 }
 
 /**
  * ============================================================================
- * 🛡️ MCP SENTINEL: 4-TIER ZERO-TRUST SECURITY ENGINE
+ * MCP SENTINEL: 4-TIER ZERO-TRUST SECURITY ENGINE
  * ============================================================================
  */
 
@@ -110,39 +110,56 @@ export function checkScopeAndPathTraversal(val: string): { matched: boolean; det
 import { getKnownConfigPaths, patchConfigFile, unpatchConfigFile, watchAndAutoArmor } from './config-guard.js';
 import { startDaemon, stopDaemon, statusDaemon } from './daemon.js';
 import { analyzeSemanticIntent } from './slm-guard.js';
+import { resolveTierConfig, loadSavedTierConfig, saveTierConfig, formatLayersDashboard, TierConfig } from './tier-config.js';
+import { startApiServer } from './api-server.js';
+export { resolveTierConfig, loadSavedTierConfig, saveTierConfig, formatLayersDashboard, TierConfig };
+
+export let activeTierConfig: TierConfig = resolveTierConfig(process.argv.slice(2));
+
+export function setActiveTierConfig(config: TierConfig): void {
+  activeTierConfig = config;
+}
 
 /**
- * Recursively scans any value (object, array, string) across all 4 defense tiers.
+ * Recursively scans any value (object, array, string) across enabled defense tiers.
  */
-function containsSensitiveData(value: unknown): { matched: boolean; pattern?: string; tier?: string } {
+export function containsSensitiveData(value: unknown, config: TierConfig = activeTierConfig): { matched: boolean; pattern?: string; tier?: string } {
   if (value === null || value === undefined) {
     return { matched: false };
   }
 
   if (typeof value === 'string') {
     // Tier 1: Known Regex
-    for (const pattern of SENSITIVE_PATTERNS) {
-      if (pattern.test(value)) {
-        return { matched: true, pattern: pattern.toString(), tier: 'Tier 1 (Regex Signature)' };
+    if (config.tier1) {
+      for (const pattern of SENSITIVE_PATTERNS) {
+        if (pattern.test(value)) {
+          return { matched: true, pattern: pattern.toString(), tier: 'Tier 1 (Regex Signature)' };
+        }
       }
     }
 
     // Tier 3: Path Traversal
-    const pathCheck = checkScopeAndPathTraversal(value);
-    if (pathCheck.matched) {
-      return { matched: true, pattern: pathCheck.details, tier: 'Tier 3 (Path Traversal Guard)' };
+    if (config.tier3) {
+      const pathCheck = checkScopeAndPathTraversal(value);
+      if (pathCheck.matched) {
+        return { matched: true, pattern: pathCheck.details, tier: 'Tier 3 (Path Traversal Guard)' };
+      }
     }
 
-    // Tier 2: Shannon Entropy (Unknown / Custom tokens)
-    const entropyCheck = checkHighEntropy(value);
-    if (entropyCheck.matched) {
-      return { matched: true, pattern: entropyCheck.details, tier: 'Tier 2 (Shannon Entropy)' };
+    // Tier 4: In-Process SLM & Neural Semantic Guardrail (Checks intent & de-obfuscates payloads)
+    if (config.tier4) {
+      const slmCheck = analyzeSemanticIntent(value);
+      if (slmCheck.isThreat) {
+        return { matched: true, pattern: slmCheck.reason, tier: 'Tier 4 (SLM / Neural Guardrail)' };
+      }
     }
 
-    // Tier 4: Semantic NLP / SLM Adversarial Intent Check
-    const slmCheck = analyzeSemanticIntent(value);
-    if (slmCheck.isThreat) {
-      return { matched: true, pattern: slmCheck.reason, tier: 'Tier 4 (SLM / Neural Guardrail)' };
+    // Tier 2: Shannon Entropy (Unknown / Custom High-Entropy tokens)
+    if (config.tier2) {
+      const entropyCheck = checkHighEntropy(value);
+      if (entropyCheck.matched) {
+        return { matched: true, pattern: entropyCheck.details, tier: 'Tier 2 (Shannon Entropy)' };
+      }
     }
 
     return { matched: false };
@@ -150,7 +167,7 @@ function containsSensitiveData(value: unknown): { matched: boolean; pattern?: st
 
   if (Array.isArray(value)) {
     for (const item of value) {
-      const res = containsSensitiveData(item);
+      const res = containsSensitiveData(item, config);
       if (res.matched) return res;
     }
     return { matched: false };
@@ -158,20 +175,22 @@ function containsSensitiveData(value: unknown): { matched: boolean; pattern?: st
 
   if (typeof value === 'object') {
     for (const [key, val] of Object.entries(value)) {
-      const keyRes = containsSensitiveData(key);
+      const keyRes = containsSensitiveData(key, config);
       if (keyRes.matched) return keyRes;
-      const valRes = containsSensitiveData(val);
+      const valRes = containsSensitiveData(val, config);
       if (valRes.matched) return valRes;
     }
-    try {
-      const serialized = JSON.stringify(value);
-      for (const pattern of SENSITIVE_PATTERNS) {
-        if (pattern.test(serialized)) {
-          return { matched: true, pattern: pattern.toString(), tier: 'Tier 1 (Regex Signature)' };
+    if (config.tier1) {
+      try {
+        const serialized = JSON.stringify(value);
+        for (const pattern of SENSITIVE_PATTERNS) {
+          if (pattern.test(serialized)) {
+            return { matched: true, pattern: pattern.toString(), tier: 'Tier 1 (Regex Signature)' };
+          }
         }
+      } catch {
+        // Ignore circular reference
       }
-    } catch {
-      // Ignore circular reference
     }
   }
 
@@ -255,17 +274,21 @@ function formatLogLine(rawLine: string, isVerbose: boolean): string {
 function printUsage(): void {
   console.error('MCP Sentinel - Inline Security Proxy & Auto-Guard for Model Context Protocol\n');
   console.error('Usage:');
-  console.error('  mcp-sentinel logs [--verbose|-v]   Stream live traffic, intercepts & payloads in real-time');
-  console.error('  mcp-sentinel daemon start          Start Always-On background watchdog (runs silently without a terminal)');
-  console.error('  mcp-sentinel daemon stop           Stop the background watchdog');
-  console.error('  mcp-sentinel daemon status         Check status of the background watchdog');
-  console.error('  mcp-sentinel watch                 Run continuous watcher in current terminal');
-  console.error('  mcp-sentinel patch                 Scan & auto-shield all MCP servers in Antigravity / Claude / Cursor');
-  console.error('  mcp-sentinel unpatch               Restore original server configs');
-  console.error('  mcp-sentinel <cmd> [...args]       Run as inline stdio proxy for a specific MCP server');
+  console.error('  mcp-sentinel api [--port=3456]              Start HTTP + SSE API server for frontend integration');
+  console.error('  mcp-sentinel layers [enable|disable|reset]  View and toggle security layers (Tier 1 - Tier 4)');
+  console.error('  mcp-sentinel logs [--verbose|-v]            Stream live traffic, intercepts & payloads in real-time');
+  console.error('  mcp-sentinel daemon start                   Start Always-On background watchdog (runs silently without a terminal)');
+  console.error('  mcp-sentinel daemon stop                    Stop the background watchdog');
+  console.error('  mcp-sentinel daemon status                  Check status of the background watchdog');
+  console.error('  mcp-sentinel watch                          Run continuous watcher in current terminal');
+  console.error('  mcp-sentinel patch                          Scan & auto-shield all MCP servers in Antigravity / Claude / Cursor');
+  console.error('  mcp-sentinel unpatch                        Restore original server configs');
+  console.error('  mcp-sentinel <cmd> [...args] [--tiers=...]  Run as inline stdio proxy for a specific MCP server');
   console.error('\nExamples:');
-  console.error('  mcp-sentinel logs --verbose');
-  console.error('  mcp-sentinel daemon start');
+  console.error('  mcp-sentinel api --port=3456');
+  console.error('  mcp-sentinel layers disable 2');
+  console.error('  mcp-sentinel layers enable all');
+  console.error('  mcp-sentinel npx @modelcontextprotocol/server-filesystem C:/dir --disable-tier=2');
 }
 
 async function main(): Promise<void> {
@@ -279,6 +302,70 @@ async function main(): Promise<void> {
   const firstArg = targetArgs[0].toLowerCase();
   const secondArg = targetArgs[1]?.toLowerCase();
   const isVerbose = targetArgs.some(a => a.toLowerCase() === '--verbose' || a.toLowerCase() === '-v');
+
+  // Subcommand: api
+  if (firstArg === 'api' || firstArg === 'server') {
+    const portArg = targetArgs.find(a => a.startsWith('--port='));
+    const port = portArg ? parseInt(portArg.replace('--port=', ''), 10) : undefined;
+    startApiServer(port);
+    // Keep process alive
+    await new Promise(() => { });
+    return;
+  }
+
+  // Subcommand: layers / tiers
+  if (firstArg === 'layers' || firstArg === 'tiers' || firstArg === 'matrix') {
+    const config = loadSavedTierConfig();
+    const action = secondArg;
+    const thirdArg = targetArgs[2]?.toLowerCase();
+
+    if (!action || action === 'status' || action === 'show' || action === 'list') {
+      console.log(formatLayersDashboard(config));
+      return;
+    }
+
+    if (action === 'enable' || action === 'on') {
+      const targets = thirdArg ? thirdArg.split(',').map(s => s.trim()) : ['all'];
+      if (targets.includes('all') || targets.includes('1')) config.tier1 = true;
+      if (targets.includes('all') || targets.includes('2')) config.tier2 = true;
+      if (targets.includes('all') || targets.includes('3')) config.tier3 = true;
+      if (targets.includes('all') || targets.includes('4')) config.tier4 = true;
+      saveTierConfig(config);
+      console.log(`[MCP Sentinel Layers] ✅ Enabled layers: ${targets.join(', ')}\n`);
+      console.log(formatLayersDashboard(config));
+      return;
+    }
+
+    if (action === 'disable' || action === 'off') {
+      const targets = thirdArg ? thirdArg.split(',').map(s => s.trim()) : [];
+      if (targets.length === 0) {
+        console.error("Please specify tier number(s) to disable: e.g. 'mcp-sentinel layers disable 2' or '2,4'");
+        return;
+      }
+      if (targets.includes('1')) config.tier1 = false;
+      if (targets.includes('2')) config.tier2 = false;
+      if (targets.includes('3')) config.tier3 = false;
+      if (targets.includes('4')) config.tier4 = false;
+      saveTierConfig(config);
+      console.log(`[MCP Sentinel Layers] 🛑 Disabled layers: ${targets.join(', ')}\n`);
+      console.log(formatLayersDashboard(config));
+      return;
+    }
+
+    if (action === 'reset' || action === 'restore') {
+      config.tier1 = true;
+      config.tier2 = true;
+      config.tier3 = true;
+      config.tier4 = true;
+      saveTierConfig(config);
+      console.log('[MCP Sentinel Layers] 🔄 Reset all defense layers to ENABLED.\n');
+      console.log(formatLayersDashboard(config));
+      return;
+    }
+
+    console.error(`Unknown layers command: '${action}'. Use 'status', 'enable <1|2|3|4|all>', 'disable <1|2|3|4>', or 'reset'.`);
+    return;
+  }
 
   // Subcommand: logs
   if (firstArg === 'logs' || firstArg === 'stream') {
@@ -325,10 +412,10 @@ async function main(): Promise<void> {
             if (out) process.stdout.write(out);
           }
         }
-      } catch {}
+      } catch { }
     }, 150);
 
-    await new Promise(() => {});
+    await new Promise(() => { });
     return;
   }
 
@@ -379,15 +466,34 @@ async function main(): Promise<void> {
   if (firstArg === 'watch') {
     watchAndAutoArmor();
     // Keep process alive
-    await new Promise(() => {});
+    await new Promise(() => { });
     return;
   }
 
-  const [rawCommand, ...rawArgs] = targetArgs;
+  // Separate Sentinel flags from target command arguments
+  const isSentinelFlag = (arg: string) => {
+    const l = arg.toLowerCase();
+    return l === '--verbose' || l === '-v' ||
+      l.startsWith('--tiers=') ||
+      l.startsWith('--disable-tier=') || l.startsWith('--disable-tiers=') ||
+      l.startsWith('--no-tier') || l.startsWith('--disable-tier') ||
+      l.startsWith('--enable-tier');
+  };
+
+  const filteredArgs = targetArgs.filter(a => !isSentinelFlag(a));
+  if (filteredArgs.length === 0) {
+    printUsage();
+    process.exit(1);
+  }
+
+  // Update active tier configuration for this proxy session
+  activeTierConfig = resolveTierConfig(targetArgs);
+
+  const [rawCommand, ...rawArgs] = filteredArgs;
   const executable = resolveWindowsExecutable(rawCommand);
   const isWindows = process.platform === 'win32';
   const isBatchFile = isWindows && (executable.toLowerCase().endsWith('.cmd') || executable.toLowerCase().endsWith('.bat'));
-  
+
   // If batch file on Windows, shell: true is required by Node security policy; escape args with spaces
   const spawnArgs = isBatchFile ? rawArgs.map(formatShellArg) : rawArgs;
 
@@ -470,7 +576,7 @@ async function main(): Promise<void> {
           `tools/call '${parsed.params?.name || 'unknown'}' blocked (id: ${parsed.id}) by [${checkResult.tier}]. Details: ${checkResult.pattern}`,
           parsed.params?.arguments
         );
-        
+
         // Remove from tracked pending requests since it won't reach the server
         if (parsed.id !== undefined) {
           pendingRequests.delete(parsed.id);
@@ -540,6 +646,10 @@ async function main(): Promise<void> {
     if (isToolsListResponse && parsed?.result && Array.isArray(parsed.result.tools)) {
       const originalTools = parsed.result.tools;
       const filteredTools = originalTools.filter((tool: any) => {
+        if (!activeTierConfig.tier4) {
+          return true;
+        }
+
         const description = typeof tool?.description === 'string' ? tool.description : '';
         const name = typeof tool?.name === 'string' ? tool.name : '';
         const textToScan = `${name} ${description}`;
@@ -584,7 +694,17 @@ async function main(): Promise<void> {
   });
 }
 
-main().catch((err) => {
-  console.error('[MCP Sentinel] Fatal error:', err);
-  process.exit(1);
-});
+import { fileURLToPath } from 'node:url';
+
+const currentFilePath = fileURLToPath(import.meta.url);
+const executedFilePath = process.argv[1] ? path.resolve(process.argv[1]) : '';
+const isDirectExecution = executedFilePath === currentFilePath ||
+  executedFilePath.endsWith('proxy.js') ||
+  executedFilePath.endsWith('proxy.ts');
+
+if (isDirectExecution) {
+  main().catch((err) => {
+    console.error('[MCP Sentinel] Fatal error:', err);
+    process.exit(1);
+  });
+}
