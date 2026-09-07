@@ -97,7 +97,9 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
     setCurrentTab(tabId);
     if (tabId === "home") {
       onNavigate("home");
-    } else if (tabId === "handshake" || tabId === "dashboard") {
+    } else if (tabId === "dashboard") {
+      onNavigate("dashboard");
+    } else if (tabId === "handshake") {
       onNavigate("handshake");
     } else if (tabId === "registry") {
       onNavigate("registry");
@@ -105,6 +107,8 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
       onNavigate("traffic");
     } else if (tabId === "threats") {
       onNavigate("threats");
+    } else if (tabId === "settings") {
+      onNavigate("settings");
     }
   };
 
@@ -157,7 +161,8 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
 
           {/* Dashboard */}
           <SidebarItem
-            onClick={() => handleNavClick("handshake")}
+            onClick={() => handleNavClick("dashboard")}
+            active={currentTab === "dashboard"}
             icon={
               <svg width="22" height="18.94" viewBox="0 0 22 18.9444" fill="none">
                 <path d={svgPaths.p5955d00} fill="#81C5FF" />

@@ -122,13 +122,17 @@ function Sidebar({ currentTab, onSelectTab, onNavigate }: SidebarProps) {
                 onSelectTab(id);
                 if (id === "home") {
                   onNavigate("home");
+                } else if (id === "dashboard") {
+                  onNavigate("dashboard");
                 } else if (id === "registry") {
                   onNavigate("registry");
                 } else if (id === "traffic") {
                   onNavigate("traffic");
                 } else if (id === "threats") {
                   onNavigate("threats");
-                } else if (id === "handshake" || id === "dashboard") {
+                } else if (id === "settings") {
+                  onNavigate("settings");
+                } else if (id === "handshake") {
                   onNavigate("handshake");
                 }
               }}

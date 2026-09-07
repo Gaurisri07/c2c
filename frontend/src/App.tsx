@@ -1,12 +1,20 @@
 import { useState, useEffect } from "react";
 import LandingPage from "@/pages/LandingPage";
+import DashboardPage from "@/pages/DashboardPage";
 import HandshakeMonitor from "@/pages/HandshakeMonitor";
 import ServerRegistryPage from "@/pages/ServerRegistryPage";
 import LiveTrafficPage from "@/pages/LiveTrafficPage";
 import ThreatDetailPage from "@/pages/ThreatDetailPage";
+import PolicyAndSettingsPage from "@/pages/PolicyAndSettingsPage";
 
 function getPageFromHash(): string {
   const hash = window.location.hash.toLowerCase();
+  if (hash.includes("setting") || hash.includes("policy")) {
+    return "settings";
+  }
+  if (hash.includes("dashboard")) {
+    return "dashboard";
+  }
   if (hash.includes("threat") || hash.includes("detail")) {
     return "threats";
   }
@@ -16,11 +24,7 @@ function getPageFromHash(): string {
   if (hash.includes("registry") || hash.includes("server")) {
     return "registry";
   }
-  if (
-    hash.includes("handshake") ||
-    hash.includes("dashboard") ||
-    hash.includes("monitor")
-  ) {
+  if (hash.includes("handshake") || hash.includes("monitor")) {
     return "handshake";
   }
   return "home";
@@ -40,11 +44,15 @@ export default function App() {
 
   const navigateTo = (page: string) => {
     setCurrentPage(page);
-    if (page === "threats" || page === "threat-detail") {
+    if (page === "settings" || page === "policy") {
+      window.location.hash = "/settings";
+    } else if (page === "dashboard") {
+      window.location.hash = "/dashboard";
+    } else if (page === "threats" || page === "threat-detail") {
       window.location.hash = "/threats";
     } else if (page === "traffic" || page === "live-traffic") {
       window.location.hash = "/traffic";
-    } else if (page === "handshake" || page === "dashboard") {
+    } else if (page === "handshake") {
       window.location.hash = "/handshake";
     } else if (page === "registry") {
       window.location.hash = "/registry";
@@ -55,6 +63,11 @@ export default function App() {
 
   const renderPage = () => {
     switch (currentPage) {
+      case "settings":
+      case "policy":
+        return <PolicyAndSettingsPage onNavigate={navigateTo} />;
+      case "dashboard":
+        return <DashboardPage onNavigate={navigateTo} />;
       case "threats":
         return <ThreatDetailPage onNavigate={navigateTo} />;
       case "traffic":

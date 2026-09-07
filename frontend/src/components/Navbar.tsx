@@ -23,15 +23,24 @@ export default function Navbar({ currentPage = "home", onNavigate }: NavbarProps
           <img src="/logo.svg" alt="MCP Sentinel" className="w-[180px] object-contain" onError={(e) => { (e.target as HTMLImageElement).src = imgLogo; }} />
         </button>
       </div>
-      <div className="flex items-center gap-6 lg:gap-10">
+      <div className="flex items-center gap-4 lg:gap-8">
         <a
           href="#/"
           onClick={(e) => handleNav("home", e)}
-          className={`font-conthrax text-[16px] lg:text-[20px] no-underline hover:opacity-80 transition-opacity ${
+          className={`font-conthrax text-[15px] lg:text-[18px] no-underline hover:opacity-80 transition-opacity ${
             currentPage === "home" ? "text-[#81c5ff]" : "text-[#fefefe]"
           }`}
         >
           Home
+        </a>
+        <a
+          href="#/dashboard"
+          onClick={(e) => handleNav("dashboard", e)}
+          className={`font-conthrax text-[15px] lg:text-[18px] no-underline hover:opacity-80 transition-opacity ${
+            currentPage === "dashboard" ? "text-[#81c5ff]" : "text-[#fefefe]"
+          }`}
+        >
+          Dashboard
         </a>
         <a
           href="#features"
@@ -46,14 +55,14 @@ export default function Navbar({ currentPage = "home", onNavigate }: NavbarProps
               document.getElementById("features")?.scrollIntoView({ behavior: "smooth", block: "start" });
             }
           }}
-          className="font-conthrax text-[#fefefe] text-[16px] lg:text-[20px] no-underline hover:opacity-80 transition-opacity"
+          className="font-conthrax text-[#fefefe] text-[15px] lg:text-[18px] no-underline hover:opacity-80 transition-opacity"
         >
           Features
         </a>
         <a
           href="#/handshake"
           onClick={(e) => handleNav("handshake", e)}
-          className={`font-conthrax text-[16px] lg:text-[20px] no-underline hover:opacity-80 transition-opacity ${
+          className={`font-conthrax text-[15px] lg:text-[18px] no-underline hover:opacity-80 transition-opacity ${
             currentPage === "handshake" ? "text-[#81c5ff]" : "text-[#fefefe]"
           }`}
         >
@@ -62,7 +71,7 @@ export default function Navbar({ currentPage = "home", onNavigate }: NavbarProps
         <a
           href="#/registry"
           onClick={(e) => handleNav("registry", e)}
-          className={`font-conthrax text-[16px] lg:text-[20px] no-underline hover:opacity-80 transition-opacity ${
+          className={`font-conthrax text-[15px] lg:text-[18px] no-underline hover:opacity-80 transition-opacity ${
             currentPage === "registry" ? "text-[#81c5ff]" : "text-[#fefefe]"
           }`}
         >
@@ -71,7 +80,7 @@ export default function Navbar({ currentPage = "home", onNavigate }: NavbarProps
         <a
           href="#/traffic"
           onClick={(e) => handleNav("traffic", e)}
-          className={`font-conthrax text-[16px] lg:text-[20px] no-underline hover:opacity-80 transition-opacity ${
+          className={`font-conthrax text-[15px] lg:text-[18px] no-underline hover:opacity-80 transition-opacity ${
             currentPage === "traffic" ? "text-[#81c5ff]" : "text-[#fefefe]"
           }`}
         >
@@ -80,14 +89,23 @@ export default function Navbar({ currentPage = "home", onNavigate }: NavbarProps
         <a
           href="#/threats"
           onClick={(e) => handleNav("threats", e)}
-          className={`font-conthrax text-[16px] lg:text-[20px] no-underline hover:opacity-80 transition-opacity ${
+          className={`font-conthrax text-[15px] lg:text-[18px] no-underline hover:opacity-80 transition-opacity ${
             currentPage === "threats" ? "text-[#81c5ff]" : "text-[#fefefe]"
           }`}
         >
           Threats
         </a>
+        <a
+          href="#/settings"
+          onClick={(e) => handleNav("settings", e)}
+          className={`font-conthrax text-[15px] lg:text-[18px] no-underline hover:opacity-80 transition-opacity ${
+            currentPage === "settings" ? "text-[#81c5ff]" : "text-[#fefefe]"
+          }`}
+        >
+          Settings
+        </a>
       </div>
-      <div className="w-[180px]" />
+      <div className="w-[80px]" />
     </nav>
   );
 }
