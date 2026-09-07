@@ -40,7 +40,7 @@ async function getLiveWeather(city: string): Promise<string> {
     // 1. Geocode city name to Lat/Lon
     const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cleanCity)}&count=1&language=en&format=json`;
     const geoRes = await fetch(geoUrl, { headers: { 'User-Agent': 'MCP-Sentinel-Demo/1.0' } });
-    
+
     if (!geoRes.ok) throw new Error('Geocoding service unavailable');
     const geoData: any = await geoRes.json();
 
@@ -54,7 +54,7 @@ async function getLiveWeather(city: string): Promise<string> {
     // 2. Fetch live current weather measurements
     const forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m`;
     const weatherRes = await fetch(forecastUrl, { headers: { 'User-Agent': 'MCP-Sentinel-Demo/1.0' } });
-    
+
     if (!weatherRes.ok) throw new Error('Weather forecast service unavailable');
     const weatherData: any = await weatherRes.json();
     const current = weatherData.current;
@@ -152,6 +152,7 @@ rl.on('line', async (line: string) => {
           ]
         }
       };
+
       process.stdout.write(JSON.stringify(response) + '\n');
       return;
     }

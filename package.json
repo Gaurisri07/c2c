@@ -12,6 +12,8 @@
     "dev": "tsx src/proxy.ts",
     "build": "tsc",
     "start": "tsx src/proxy.ts",
+    "api": "tsx src/api-server.ts",
+    "server": "node dist/api-server.js",
     "test": "tsx test/test-sentinel.ts",
     "logs": "node dist/proxy.js logs",
     "patch": "node dist/proxy.js patch",
