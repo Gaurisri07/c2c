@@ -136,7 +136,7 @@ export default function Hero({ onNavigate }: HeroProps) {
           >
             {/* ── Shield vector image (Centered) ─────────────────────────── */}
             <image
-              href="/shield_final.svg"
+              href="/shield.svg"
               x={240}
               y={40}
               width={260}
@@ -228,7 +228,7 @@ export default function Hero({ onNavigate }: HeroProps) {
           {/* Mobile fallback: shield + pill grid */}
           <div className="flex lg:hidden flex-col items-center gap-5 w-full">
             <img
-              src={imgShield}
+              src="/shield.svg"
               alt="MCP Sentinel Shield"
               className="w-[240px] object-contain"
             />
