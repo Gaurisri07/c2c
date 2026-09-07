@@ -5,6 +5,7 @@ import {
   clearTrafficLogs,
   simulateTrafficEvent,
   subscribeTrafficStream,
+  executeToolCall,
   StructuredLog,
 } from "@/services/api";
 
@@ -253,13 +254,13 @@ type PillColor = "blue" | "yellow" | "green";
 
 function Pill({ label, color }: { label: string; color: PillColor }) {
   const styles: Record<PillColor, string> = {
-    blue: "border-[#0276e2] text-[rgba(255,255,255,0.75)]",
-    yellow: "border-[rgba(255,213,97,0.9)] text-[rgba(255,255,255,0.75)]",
-    green: "border-[#5fe3b3] text-[rgba(255,255,255,0.75)]",
+    blue: "border-[#0276e2] text-[#81c5ff] bg-[rgba(2,118,226,0.1)]",
+    yellow: "border-[rgba(255,213,97,0.8)] text-[#ffd561] bg-[rgba(255,213,97,0.1)]",
+    green: "border-[#5fe3b3] text-[#5fe3b3] bg-[rgba(95,227,179,0.1)]",
   };
   return (
     <span
-      className={`inline-flex items-center px-3 py-1 rounded-[10px] border text-[14px] whitespace-nowrap font-helvetica ${styles[color]}`}
+      className={`inline-flex items-center justify-center px-2.5 py-0.5 rounded-full border text-[12px] whitespace-nowrap font-helvetica ${styles[color]}`}
     >
       {label}
     </span>
@@ -270,48 +271,147 @@ function StatusBadge({ status }: { status: LogStatus }) {
   if (status === "blocked") {
     return (
       <span
-        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-[9px] text-[#ff383c] text-[12px] whitespace-nowrap bg-[rgba(255,56,60,0.1)] border border-[rgba(255,56,60,0.4)] font-helvetica"
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] text-[#ff383c] text-[12px] whitespace-nowrap bg-[rgba(255,56,60,0.12)] border border-[rgba(255,56,60,0.4)] font-helvetica font-medium"
       >
-        <IconRedTriangle size={13} />
+        <IconRedTriangle size={12} />
         blocked
       </span>
     );
   }
   return (
     <span
-      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-[9px] text-[rgba(255,255,255,0.9)] text-[12px] whitespace-nowrap bg-[rgba(95,227,179,0.1)] border border-[#5fe3b3] font-helvetica"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] text-[#5fe3b3] text-[12px] whitespace-nowrap bg-[rgba(95,227,179,0.1)] border border-[#5fe3b3]/50 font-helvetica font-medium"
     >
-      <IconCheck size={13} />
+      <IconCheck size={12} />
       allowed
     </span>
   );
 }
 
-function LogRow({ log }: { log: StructuredLog }) {
+function DirectionTag({ direction }: { direction: string }) {
+  const isBlocked = direction === "BLOCKED" || direction === "SANITIZED";
+  const isOut = direction === "OUTBOUND" || direction === "CLIENT->SERVER";
   return (
-    <div className="flex flex-wrap items-center gap-x-8 gap-y-2 py-3 border-b border-[rgba(91,141,184,0.15)] last:border-0 font-helvetica">
-      <span
-        className="text-[#9c9c9c] text-[16px] shrink-0 w-[85px] tabular-nums"
+    <span
+      className={`inline-block px-2 py-0.5 rounded text-[11px] font-mono font-bold uppercase tracking-wider ${
+        isBlocked
+          ? "bg-[rgba(255,56,60,0.2)] text-[#ff383c]"
+          : isOut
+          ? "bg-[rgba(129,197,255,0.15)] text-[#81c5ff]"
+          : "bg-[rgba(95,227,179,0.15)] text-[#5fe3b3]"
+      }`}
+    >
+      {direction}
+    </span>
+  );
+}
+
+function LogRow({
+  log,
+  isExpanded,
+  onToggle,
+}: {
+  log: StructuredLog;
+  isExpanded: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="border-b border-[rgba(91,141,184,0.15)] last:border-0 font-helvetica transition-colors">
+      {/* Main Row Bar */}
+      <div
+        onClick={onToggle}
+        className={`flex items-center gap-4 px-4 py-3 cursor-pointer rounded-xl transition-all ${
+          isExpanded
+            ? "bg-[rgba(129,197,255,0.1)] border border-[rgba(129,197,255,0.3)] shadow-[0_0_12px_rgba(129,197,255,0.06)]"
+            : "hover:bg-[rgba(129,197,255,0.04)]"
+        }`}
       >
-        {log.time}
-      </span>
-      <div className="flex flex-col gap-0.5 flex-1 min-w-[200px]">
-        <span
-          className="text-white text-[16px]"
-        >
-          <span className="text-[#81c5ff]/80">tools/call</span>{" "}
-          <span className="font-semibold text-white">{log.call}</span>
+        {/* Time */}
+        <span className="text-[#9c9c9c] text-[13.5px] font-mono tabular-nums shrink-0 w-[100px] whitespace-nowrap">
+          {log.time}
         </span>
-        <span
-          className="text-[#9c9c9c] text-[13.5px] truncate"
-        >
-          {log.detail}
-        </span>
+
+        {/* Direction Tag */}
+        <div className="shrink-0 w-[95px]">
+          <DirectionTag direction={log.direction || "OUTBOUND"} />
+        </div>
+
+        {/* Call & Detail */}
+        <div className="flex flex-col min-w-0 flex-1 pr-2">
+          <div className="flex items-center gap-2">
+            <span className="text-white text-[14.5px] font-semibold truncate">
+              {log.call}
+            </span>
+          </div>
+          <span className="text-[#9c9c9c] text-[12px] truncate mt-0.5">
+            {log.detail}
+          </span>
+        </div>
+
+        {/* Category Pill */}
+        <div className="shrink-0 w-[120px] flex justify-center">
+          <Pill label={log.pill} color={log.pillColor} />
+        </div>
+
+        {/* Status Badge */}
+        <div className="shrink-0 w-[95px] flex justify-end">
+          <StatusBadge status={log.status} />
+        </div>
+
+        {/* Expand Indicator */}
+        <div className="shrink-0 w-[30px] flex justify-center text-[#81c5ff] text-[12px]">
+          {isExpanded ? "▲" : "▼"}
+        </div>
       </div>
-      <div className="flex items-center gap-3 ml-auto shrink-0">
-        <Pill label={log.pill} color={log.pillColor} />
-        <StatusBadge status={log.status} />
-      </div>
+
+      {/* Inline Expandable Inspector */}
+      {isExpanded && (
+        <div className="mt-2 mb-3 mx-2 p-4 rounded-xl bg-[#030712] border border-[rgba(129,197,255,0.3)] shadow-inner">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+            <div className="bg-[rgba(255,255,255,0.03)] p-2.5 rounded-lg border border-[rgba(91,141,184,0.15)]">
+              <span className="text-white/40 text-[11px] block">Target Tool</span>
+              <span className="text-white font-mono text-[12.5px] font-semibold truncate block">
+                {log.call}
+              </span>
+            </div>
+            <div className="bg-[rgba(255,255,255,0.03)] p-2.5 rounded-lg border border-[rgba(91,141,184,0.15)]">
+              <span className="text-white/40 text-[11px] block">Timestamp</span>
+              <span className="text-white font-mono text-[12.5px] block">{log.time}</span>
+            </div>
+            <div className={`p-2.5 rounded-lg border ${log.status === "blocked" ? "bg-[rgba(255,56,60,0.1)] border-[rgba(255,56,60,0.3)]" : "bg-[rgba(52,199,89,0.08)] border-[rgba(52,199,89,0.3)]"}`}>
+              <span className="text-white/50 text-[11px] block">DLP Guardrail Decision</span>
+              <span className="font-bold text-[12px]" style={{ color: log.status === "blocked" ? "#ff383c" : "#5fe3b3" }}>
+                {log.status === "blocked" ? "Threat Blocked & Quarantined" : "Authorized & Verified"}
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-white/70 font-semibold text-[11.5px]">JSON-RPC 2.0 Wire Frame</span>
+              <span className="text-white/40 font-mono text-[10px]">application/json</span>
+            </div>
+            <pre className="p-3 bg-[#010106] border border-[rgba(91,141,184,0.25)] rounded-lg text-[#5fe3b3] font-mono text-[12px] leading-relaxed overflow-x-auto max-h-[220px] custom-scrollbar select-all">
+              {log.payload
+                ? JSON.stringify(log.payload, null, 2)
+                : JSON.stringify(
+                    {
+                      jsonrpc: "2.0",
+                      method: "tools/call",
+                      params: {
+                        name: log.call,
+                        summary: log.summary,
+                        detail: log.detail,
+                      },
+                      status: log.status,
+                    },
+                    null,
+                    2
+                  )}
+            </pre>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -355,8 +455,10 @@ interface LiveTrafficPageProps {
 export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPageProps) {
   const [currentTab, setCurrentTab] = useState("traffic");
   const [logs, setLogs] = useState<StructuredLog[]>([]);
+  const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  const [isExecuting, setIsExecuting] = useState<string | null>(null);
 
   // Load initial logs and subscribe to real-time SSE stream
   useEffect(() => {
@@ -384,17 +486,31 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
   const toolCallsCount = logs.length;
   const blockedCount = logs.filter((l) => l.status === "blocked").length;
   const allowedCount = logs.filter((l) => l.status === "allowed").length;
-  const sensitivePatternsCount = logs.filter((l) => l.pill === ".env variable" || l.pill === "API token").length;
+  const sensitivePatternsCount = logs.filter(
+    (l) => l.pill === ".env leak" || l.pill === ".env variable" || l.pill === "API token" || l.status === "blocked"
+  ).length;
 
   const handleClear = async () => {
     await clearTrafficLogs();
     setLogs([]);
+    setExpandedLogId(null);
   };
 
-  const handleSimulate = async (type: "leak" | "injection" | "safe") => {
-    const entry = await simulateTrafficEvent(type);
-    if (entry && !isPaused) {
-      setLogs((prev) => [entry, ...prev]);
+  const handleExecuteTool = async (
+    server: string,
+    tool: string,
+    args?: Record<string, any>,
+    keyLabel?: string
+  ) => {
+    setIsExecuting(keyLabel || tool);
+    try {
+      const res = await executeToolCall(server, tool, args);
+      if (res && res.entry && !isPaused) {
+        setLogs((prev) => [res.entry!, ...prev]);
+        setExpandedLogId(res.entry.id);
+      }
+    } finally {
+      setIsExecuting(null);
     }
   };
 
@@ -407,7 +523,7 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
       />
 
       {/* Main content */}
-      <main className="flex-1 min-w-0 px-8 lg:px-10 py-8 overflow-y-auto">
+      <main className="flex-1 min-w-0 px-8 lg:px-10 py-8 overflow-y-auto custom-scrollbar">
         {/* Top Breadcrumb & Action */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2 text-sm text-[#81c5ff]/80 font-helvetica">
@@ -419,9 +535,19 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
             </button>
             <span>/</span>
             <span className="text-white/60">Live Traffic</span>
-            <span className="ml-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-mono" style={{ background: isConnected ? "rgba(52,199,89,0.15)" : "rgba(255,56,60,0.15)", color: isConnected ? "#34C759" : "#FF383C" }}>
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: isConnected ? "#34C759" : "#FF383C" }} />
-              {isConnected ? "Live Stream Active" : "Polling Mode"}
+            <span
+              className="ml-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono"
+              style={{
+                background: isConnected ? "rgba(52,199,89,0.15)" : "rgba(255,56,60,0.15)",
+                color: isConnected ? "#34C759" : "#FF383C",
+                border: isConnected ? "1px solid rgba(52,199,89,0.4)" : "1px solid rgba(255,56,60,0.4)",
+              }}
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${isConnected ? "animate-pulse" : ""}`}
+                style={{ background: isConnected ? "#34C759" : "#FF383C" }}
+              />
+              {isConnected ? "Live EventStream Connected" : "Connecting..."}
             </span>
           </div>
         </div>
@@ -431,7 +557,7 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
           Live Traffic
         </h1>
         <p className="font-['Helvetica',Helvetica,Arial,sans-serif] text-white/70 text-[15px] lg:text-[16px] mb-6 max-w-[800px] leading-relaxed">
-          Visualizes runtime tools/call inspection and blocked exfiltration attempts in real time.
+          Real-time MCP wire inspection and DLP guardrail monitor. Automatically captures, parses, and audits every incoming and outgoing JSON-RPC tool frame.
         </p>
 
         {/* Stat Cards */}
@@ -441,37 +567,132 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
           <StatCard value={0} label="Sensitive data leaked" icon={<IconShield />} borderColor="rgba(91,141,184,0.6)" />
         </div>
 
-        {/* Streaming Traffic Card */}
-        <div
-          className="rounded-[24px] p-6 mb-5 bg-[rgba(91,141,184,0.05)] border border-[rgba(129,197,255,0.4)]"
-        >
+        {/* Real Tool Execution & Test Bar */}
+        <div className="rounded-[20px] p-4 mb-5 bg-[rgba(91,141,184,0.06)] border border-[rgba(129,197,255,0.3)] flex flex-col gap-2.5 font-helvetica">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#5fe3b3] animate-ping" />
+              <span className="text-white text-[15px] font-bold">Call / Test Real MCP Tools</span>
+              <span className="text-white/50 text-[12px]">(Triggers live inspection wire frame in real time)</span>
+            </div>
+            {isExecuting && (
+              <span className="text-[#81c5ff] text-xs font-mono animate-pulse">
+                ⚡ Executing {isExecuting}...
+              </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <button
+              disabled={!!isExecuting}
+              onClick={() =>
+                handleExecuteTool(
+                  "safe-math",
+                  "calculate_expression",
+                  { expression: `${Math.floor(Math.random() * 20 + 5)} * ${Math.floor(Math.random() * 15 + 2)} + 10` },
+                  "safe-math"
+                )
+              }
+              className="flex items-center justify-between px-3.5 py-2.5 rounded-[12px] bg-[rgba(129,197,255,0.08)] border border-[rgba(129,197,255,0.3)] text-white hover:bg-[rgba(129,197,255,0.16)] transition-all cursor-pointer text-left text-xs"
+            >
+              <div>
+                <p className="font-bold text-[#81c5ff]">safe-math</p>
+                <p className="text-white/60 text-[11px]">calculate_expression</p>
+              </div>
+              <span className="text-[#5fe3b3] font-mono text-[11px]">Safe →</span>
+            </button>
+
+            <button
+              disabled={!!isExecuting}
+              onClick={() =>
+                handleExecuteTool(
+                  "live-crypto-pulse",
+                  "get_live_crypto_price",
+                  { symbol: ["BTC", "ETH", "SOL"][Math.floor(Math.random() * 3)] },
+                  "live-crypto-pulse"
+                )
+              }
+              className="flex items-center justify-between px-3.5 py-2.5 rounded-[12px] bg-[rgba(129,197,255,0.08)] border border-[rgba(129,197,255,0.3)] text-white hover:bg-[rgba(129,197,255,0.16)] transition-all cursor-pointer text-left text-xs"
+            >
+              <div>
+                <p className="font-bold text-[#81c5ff]">live-crypto-pulse</p>
+                <p className="text-white/60 text-[11px]">get_live_crypto_price</p>
+              </div>
+              <span className="text-[#5fe3b3] font-mono text-[11px]">Safe →</span>
+            </button>
+
+            <button
+              disabled={!!isExecuting}
+              onClick={() =>
+                handleExecuteTool(
+                  "network-speed-probe",
+                  "ping_latency_check",
+                  { target_host: "1.1.1.1" },
+                  "ping_latency_check"
+                )
+              }
+              className="flex items-center justify-between px-3.5 py-2.5 rounded-[12px] bg-[rgba(129,197,255,0.08)] border border-[rgba(129,197,255,0.3)] text-white hover:bg-[rgba(129,197,255,0.16)] transition-all cursor-pointer text-left text-xs"
+            >
+              <div>
+                <p className="font-bold text-[#81c5ff]">network-speed-probe</p>
+                <p className="text-white/60 text-[11px]">ping_latency_check</p>
+              </div>
+              <span className="text-[#5fe3b3] font-mono text-[11px]">Safe →</span>
+            </button>
+
+            <button
+              disabled={!!isExecuting}
+              onClick={() =>
+                handleExecuteTool(
+                  "network-speed-probe",
+                  "deep_packet_inspection",
+                  { target_env: ".env AWS_SECRET_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE" },
+                  "deep_packet_inspection"
+                )
+              }
+              className="flex items-center justify-between px-3.5 py-2.5 rounded-[12px] bg-[rgba(255,56,60,0.12)] border border-[rgba(255,56,60,0.5)] text-white hover:bg-[rgba(255,56,60,0.2)] transition-all cursor-pointer text-left text-xs"
+            >
+              <div>
+                <p className="font-bold text-[#ff383c]">DLP Test (Probe)</p>
+                <p className="text-white/60 text-[11px]">Exfiltrate .env secret</p>
+              </div>
+              <span className="text-[#ff383c] font-mono text-[11px]">Block 🛑</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Full-width Spacious Streaming Traffic Table */}
+        <div className="rounded-[24px] p-6 mb-5 bg-[rgba(91,141,184,0.05)] border border-[rgba(129,197,255,0.4)] flex flex-col">
           {/* Card Header */}
           <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <IconStream />
-              <span
-                className="text-white text-[22px] font-bold font-helvetica"
-              >
-                Streaming traffic
-              </span>
+              <div>
+                <span className="text-white text-[20px] font-bold font-helvetica block">
+                  Streaming traffic
+                </span>
+                <span className="text-white/50 text-xs font-helvetica">
+                  Click any row to inspect its live JSON-RPC frame & DLP verdict
+                </span>
+              </div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 onClick={() => setIsPaused(!isPaused)}
-                className={`flex items-center gap-2 px-4 h-9 rounded-[10px] text-[15px] transition-opacity hover:opacity-80 cursor-pointer font-helvetica ${
+                className={`flex items-center gap-1.5 px-3 h-8 rounded-[8px] text-[13px] transition-opacity hover:opacity-80 cursor-pointer font-helvetica ${
                   isPaused
                     ? "bg-[#ffd561]/20 border border-[#ffd561] text-[#ffd561]"
                     : "bg-[rgba(129,197,255,0.08)] border border-[#81c5ff] text-[#81c5ff]"
                 }`}
               >
-                <span className="font-bold tracking-widest text-[14px]">{isPaused ? "▶" : "| |"}</span>
+                <span className="font-bold text-[12px]">{isPaused ? "▶" : "⏸"}</span>
                 {isPaused ? "Resume" : "Pause"}
               </button>
               <button
                 onClick={handleClear}
-                className="flex items-center gap-2 px-4 h-9 rounded-[10px] text-[#81c5ff] text-[15px] transition-opacity hover:opacity-80 bg-transparent border border-[#5b8db8] cursor-pointer font-helvetica"
+                className="flex items-center gap-1.5 px-3 h-8 rounded-[8px] text-[#81c5ff] text-[13px] transition-opacity hover:opacity-80 bg-transparent border border-[#5b8db8] cursor-pointer font-helvetica"
               >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                   <path d="M2 4H14M6 4V2H10V4M12 4V14H4V4H12Z" stroke="#81C5FF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 Clear
@@ -479,12 +700,34 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
             </div>
           </div>
 
-          {/* Log rows */}
-          <div className="max-h-[380px] overflow-y-auto">
+          {/* Table Header Bar */}
+          <div className="flex items-center gap-4 px-4 py-2 text-[11px] font-mono uppercase tracking-wider text-white/40 border-b border-[rgba(91,141,184,0.2)]">
+            <span className="w-[100px] shrink-0">Time</span>
+            <span className="w-[95px] shrink-0">Direction</span>
+            <span className="flex-1 min-w-0">Tool Invocation & Summary</span>
+            <span className="w-[120px] shrink-0 text-center">Category</span>
+            <span className="w-[95px] shrink-0 text-right">Status</span>
+            <span className="w-[30px] shrink-0 text-center">Info</span>
+          </div>
+
+          {/* Log Rows with clean max-height and custom scrollbar */}
+          <div className="max-h-[500px] overflow-y-auto pr-1 flex flex-col gap-1 custom-scrollbar mt-1">
             {logs.length === 0 ? (
-              <p className="text-white/40 text-center py-8 font-helvetica">No live traffic recorded yet. Use the simulation buttons above to generate traffic events.</p>
+              <div className="text-center py-16 flex flex-col items-center justify-center font-helvetica">
+                <p className="text-white/50 text-[15px] mb-2">No live traffic recorded in stream.</p>
+                <p className="text-[#81c5ff]/80 text-xs">Use the tool triggers above to execute live MCP calls.</p>
+              </div>
             ) : (
-              logs.map((log) => <LogRow key={log.id} log={log} />)
+              logs.map((log) => (
+                <LogRow
+                  key={log.id}
+                  log={log}
+                  isExpanded={expandedLogId === log.id}
+                  onToggle={() =>
+                    setExpandedLogId((prev) => (prev === log.id ? null : log.id))
+                  }
+                />
+              ))
             )}
           </div>
         </div>

@@ -167,6 +167,13 @@ const NAV_ITEMS: NavItem[] = [
   { id: "settings",  label: "Policy & Settings", icon: <IconSettings color="#81c5ff" /> },
 ];
 
+import {
+  fetchPolicy,
+  savePolicy,
+  resetPolicy,
+  PolicyConfig,
+} from "@/services/api";
+
 interface PolicyAndSettingsPageProps {
   onNavigate?: (page: string) => void;
 }
@@ -189,6 +196,11 @@ export default function PolicyAndSettingsPage({ onNavigate = () => {} }: PolicyA
   // State for Preset: 'default' | 'strict' | 'permissive'
   const [preset, setPreset] = useState<"default" | "strict" | "permissive">("default");
 
+  // Loading & Saving states
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+
   // Toast message
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -196,8 +208,35 @@ export default function PolicyAndSettingsPage({ onNavigate = () => {} }: PolicyA
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage(null);
-    }, 2800);
+    }, 3200);
   };
+
+  // Load policy from backend on component mount
+  React.useEffect(() => {
+    async function loadPolicy() {
+      setIsLoading(true);
+      try {
+        const policy = await fetchPolicy();
+        if (policy) {
+          setDlpRegex(policy.dlpRules.regex);
+          setDlpScope(policy.dlpRules.scope);
+          setDlpEntropy(policy.dlpRules.entropy);
+          setDlpSlm(policy.dlpRules.slm);
+          setSensitivity(policy.sensitivity);
+          setNotifBlocked(policy.notifications.threatBlocked);
+          setNotifQuarantined(policy.notifications.serverQuarantined);
+          setNotifScanPassed(policy.notifications.routineScanPassed);
+          setPreset(policy.preset);
+          if (policy.lastUpdated) {
+            setLastUpdated(new Date(policy.lastUpdated).toLocaleTimeString());
+          }
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadPolicy();
+  }, []);
 
   const handleApplyPreset = (type: "default" | "strict" | "permissive") => {
     setPreset(type);
@@ -210,7 +249,7 @@ export default function PolicyAndSettingsPage({ onNavigate = () => {} }: PolicyA
       setNotifBlocked(true);
       setNotifQuarantined(true);
       setNotifScanPassed(false);
-      showToast("Applied Recommended Default security policy.");
+      showToast("Selected Recommended Default preset. Click 'Save changes' to deploy.");
     } else if (type === "strict") {
       setSensitivity("strict");
       setDlpRegex(true);
@@ -220,7 +259,7 @@ export default function PolicyAndSettingsPage({ onNavigate = () => {} }: PolicyA
       setNotifBlocked(true);
       setNotifQuarantined(true);
       setNotifScanPassed(true);
-      showToast("Applied Strict maximum-protection policy.");
+      showToast("Selected Strict maximum-protection preset. Click 'Save changes' to deploy.");
     } else if (type === "permissive") {
       setSensitivity("permissive");
       setDlpRegex(true);
@@ -230,16 +269,61 @@ export default function PolicyAndSettingsPage({ onNavigate = () => {} }: PolicyA
       setNotifBlocked(true);
       setNotifQuarantined(false);
       setNotifScanPassed(false);
-      showToast("Applied Permissive security policy.");
+      showToast("Selected Permissive preset. Click 'Save changes' to deploy.");
     }
   };
 
-  const handleReset = () => {
-    handleApplyPreset("default");
+  const handleReset = async () => {
+    setIsSaving(true);
+    try {
+      const res = await resetPolicy();
+      if (res && res.policy) {
+        setDlpRegex(res.policy.dlpRules.regex);
+        setDlpScope(res.policy.dlpRules.scope);
+        setDlpEntropy(res.policy.dlpRules.entropy);
+        setDlpSlm(res.policy.dlpRules.slm);
+        setSensitivity(res.policy.sensitivity);
+        setNotifBlocked(res.policy.notifications.threatBlocked);
+        setNotifQuarantined(res.policy.notifications.serverQuarantined);
+        setNotifScanPassed(res.policy.notifications.routineScanPassed);
+        setPreset(res.policy.preset);
+        setLastUpdated(new Date().toLocaleTimeString());
+        showToast("Reset to default policies and synced with MCP Sentinel proxy!");
+      }
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleSave = () => {
-    showToast("Sentinel policies updated and deployed to proxy daemon!");
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const payload: Partial<PolicyConfig> = {
+        dlpRules: {
+          regex: dlpRegex,
+          scope: dlpScope,
+          entropy: dlpEntropy,
+          slm: dlpSlm,
+        },
+        sensitivity,
+        notifications: {
+          threatBlocked: notifBlocked,
+          serverQuarantined: notifQuarantined,
+          routineScanPassed: notifScanPassed,
+        },
+        preset,
+      };
+
+      const res = await savePolicy(payload);
+      if (res && res.ok) {
+        setLastUpdated(new Date().toLocaleTimeString());
+        showToast("Sentinel policies updated and deployed to proxy daemon!");
+      } else {
+        showToast("Policy saved locally.");
+      }
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -303,25 +387,35 @@ export default function PolicyAndSettingsPage({ onNavigate = () => {} }: PolicyA
           <div className="flex items-center gap-3">
             <button
               onClick={handleReset}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-[#81c5ff]/40 bg-[rgba(129,197,255,0.1)] text-[#81c5ff] text-[13px] font-helvetica hover:bg-[rgba(129,197,255,0.18)] transition-all cursor-pointer"
+              disabled={isSaving}
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-[#81c5ff]/40 bg-[rgba(129,197,255,0.1)] text-[#81c5ff] text-[13px] font-helvetica hover:bg-[rgba(129,197,255,0.18)] transition-all cursor-pointer disabled:opacity-50"
             >
               <img src={resetImg} alt="" className="w-[14px] h-[14px] object-contain pointer-events-none" />
-              Reset to default
+              {isSaving ? "Syncing..." : "Reset to default"}
             </button>
             <button
               onClick={handleSave}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-[#5fe3b3]/40 bg-[rgba(95,227,179,0.12)] text-[#5fe3b3] text-[13px] font-helvetica hover:bg-[rgba(95,227,179,0.2)] transition-all cursor-pointer"
+              disabled={isSaving}
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-[#5fe3b3]/40 bg-[rgba(95,227,179,0.12)] text-[#5fe3b3] text-[13px] font-helvetica hover:bg-[rgba(95,227,179,0.2)] transition-all cursor-pointer disabled:opacity-50 font-semibold"
             >
               <IconCheck />
-              Save changes
+              {isSaving ? "Deploying..." : "Save changes"}
             </button>
           </div>
         </div>
 
         {/* Header */}
-        <h1 className="font-conthrax text-[#81c5ff] text-[36px] lg:text-[40px] leading-tight tracking-wide mb-2">
-          Policy &amp; Settings
-        </h1>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+          <h1 className="font-conthrax text-[#81c5ff] text-[36px] lg:text-[40px] leading-tight tracking-wide">
+            Policy &amp; Settings
+          </h1>
+          {lastUpdated && (
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[rgba(129,197,255,0.06)] border border-[rgba(129,197,255,0.2)] text-xs font-mono text-[#81c5ff]">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Deployed to Proxy Daemon at {lastUpdated}</span>
+            </div>
+          )}
+        </div>
         <p className="font-['Helvetica',Helvetica,Arial,sans-serif] text-white/70 text-[15px] lg:text-[16px] mb-6 max-w-[800px] leading-relaxed">
           Configuration surface for the rules, thresholds, and data leak prevention mechanisms Sentinel enforces.
         </p>

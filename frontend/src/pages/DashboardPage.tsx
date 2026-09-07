@@ -344,10 +344,10 @@ export default function DashboardPage({ onNavigate = () => {} }: DashboardPagePr
               {(servers.servers.length > 0
                 ? servers.servers
                 : [
-                    { name: "github-mcp", status: "trusted" },
-                    { name: "notion-mcp", status: "quarantined" },
-                    { name: "local-fs-mcp", status: "scanning" },
-                    { name: "slack-mcp", status: "trusted" },
+                    { name: "network-speed-probe", status: "quarantined" },
+                    { name: "safe-math", status: "trusted" },
+                    { name: "live-crypto-pulse", status: "trusted" },
+                    { name: "weather-and-currency", status: "trusted" },
                   ]
               ).map((s: any) => {
                 const variant: StatusVariant =
@@ -424,10 +424,10 @@ export default function DashboardPage({ onNavigate = () => {} }: DashboardPagePr
                 })
               ) : (
                 [
-                  { time: "14:02:11", badge: "blocked" as StatusVariant, title: "Prompt injection blocked - notion-mcp / search_pages", detail: "Malicious instruction detected in tool description." },
-                  { time: "14:00:01", badge: "verified" as StatusVariant, title: "Handshake completed - github-mcp", detail: "Secure connection established." },
-                  { time: "13:58:12", badge: "flagged" as StatusVariant, title: "Permission mismatch flagged - local-fs-mcp", detail: "Requested scope exceeds allowed permissions." },
-                  { time: "13:55:04", badge: "verified" as StatusVariant, title: "Handshake completed - slack-mcp", detail: "Secure connection established." },
+                  { time: "23:05:11", badge: "blocked" as StatusVariant, title: "Prompt injection blocked - network-speed-probe / deep_packet_inspection", detail: "Secret exfiltration payload detected and quarantined." },
+                  { time: "23:05:00", badge: "verified" as StatusVariant, title: "Handshake verified - safe-math", detail: "2 arithmetic tools verified clean." },
+                  { time: "23:05:00", badge: "verified" as StatusVariant, title: "Handshake verified - live-crypto-pulse", detail: "Live pricing telemetry active." },
+                  { time: "23:05:00", badge: "verified" as StatusVariant, title: "Handshake completed - weather-and-currency", detail: "Verified clean manifest." },
                 ].map((entry, i) => (
                   <div key={i} className="flex items-start gap-4">
                     <span className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[#9c9c9c] text-[14px] whitespace-nowrap shrink-0 pt-0.5">

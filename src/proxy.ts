@@ -111,7 +111,6 @@ import { getKnownConfigPaths, patchConfigFile, unpatchConfigFile, watchAndAutoAr
 import { startDaemon, stopDaemon, statusDaemon } from './daemon.js';
 import { analyzeSemanticIntent } from './slm-guard.js';
 import { resolveTierConfig, loadSavedTierConfig, saveTierConfig, formatLayersDashboard, TierConfig } from './tier-config.js';
-import { startApiServer } from './api-server.js';
 export { resolveTierConfig, loadSavedTierConfig, saveTierConfig, formatLayersDashboard, TierConfig };
 
 export let activeTierConfig: TierConfig = resolveTierConfig(process.argv.slice(2));
@@ -307,6 +306,7 @@ async function main(): Promise<void> {
   if (firstArg === 'api' || firstArg === 'server') {
     const portArg = targetArgs.find(a => a.startsWith('--port='));
     const port = portArg ? parseInt(portArg.replace('--port=', ''), 10) : undefined;
+    const { startApiServer } = await import('./api-server.js');
     startApiServer(port);
     // Keep process alive
     await new Promise(() => { });

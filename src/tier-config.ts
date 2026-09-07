@@ -108,6 +108,128 @@ export function resolveTierConfig(cliArgs: string[] = []): TierConfig {
   return config;
 }
 
+export interface PolicyConfig {
+  dlpRules: {
+    regex: boolean;    // Tier 1: Deterministic Regex
+    scope: boolean;    // Tier 3: Scope & Path Traversal
+    entropy: boolean;  // Tier 2: Shannon Entropy
+    slm: boolean;      // Tier 4: SLM & Neural Guardrail
+  };
+  sensitivity: 'permissive' | 'balanced' | 'strict';
+  notifications: {
+    threatBlocked: boolean;
+    serverQuarantined: boolean;
+    routineScanPassed: boolean;
+  };
+  preset: 'default' | 'strict' | 'permissive';
+  lastUpdated?: string;
+}
+
+export const DEFAULT_POLICY_CONFIG: PolicyConfig = {
+  dlpRules: {
+    regex: true,
+    scope: true,
+    entropy: true,
+    slm: true,
+  },
+  sensitivity: 'balanced',
+  notifications: {
+    threatBlocked: true,
+    serverQuarantined: true,
+    routineScanPassed: false,
+  },
+  preset: 'default',
+  lastUpdated: new Date().toISOString(),
+};
+
+export const POLICY_CONFIG_FILE = path.join(os.homedir(), '.mcp-sentinel-policy.json');
+
+/**
+ * Loads persistent policy configuration from ~/.mcp-sentinel-policy.json
+ */
+export function loadSavedPolicyConfig(): PolicyConfig {
+  try {
+    if (fs.existsSync(POLICY_CONFIG_FILE)) {
+      const raw = fs.readFileSync(POLICY_CONFIG_FILE, 'utf-8');
+      const parsed = JSON.parse(raw);
+      return {
+        dlpRules: {
+          regex: parsed?.dlpRules?.regex ?? true,
+          scope: parsed?.dlpRules?.scope ?? true,
+          entropy: parsed?.dlpRules?.entropy ?? true,
+          slm: parsed?.dlpRules?.slm ?? true,
+        },
+        sensitivity: parsed?.sensitivity || 'balanced',
+        notifications: {
+          threatBlocked: parsed?.notifications?.threatBlocked ?? true,
+          serverQuarantined: parsed?.notifications?.serverQuarantined ?? true,
+          routineScanPassed: parsed?.notifications?.routineScanPassed ?? false,
+        },
+        preset: parsed?.preset || 'default',
+        lastUpdated: parsed?.lastUpdated || new Date().toISOString(),
+      };
+    }
+  } catch {}
+  return { ...DEFAULT_POLICY_CONFIG };
+}
+
+/**
+ * Saves policy configuration and syncs active tiers to ~/.mcp-sentinel-tiers.json
+ */
+export function savePolicyConfig(policy: Partial<PolicyConfig>): PolicyConfig {
+  const current = loadSavedPolicyConfig();
+  const updated: PolicyConfig = {
+    dlpRules: {
+      regex: policy?.dlpRules?.regex ?? current.dlpRules.regex,
+      scope: policy?.dlpRules?.scope ?? current.dlpRules.scope,
+      entropy: policy?.dlpRules?.entropy ?? current.dlpRules.entropy,
+      slm: policy?.dlpRules?.slm ?? current.dlpRules.slm,
+    },
+    sensitivity: policy?.sensitivity || current.sensitivity,
+    notifications: {
+      threatBlocked: policy?.notifications?.threatBlocked ?? current.notifications.threatBlocked,
+      serverQuarantined: policy?.notifications?.serverQuarantined ?? current.notifications.serverQuarantined,
+      routineScanPassed: policy?.notifications?.routineScanPassed ?? current.notifications.routineScanPassed,
+    },
+    preset: policy?.preset || current.preset,
+    lastUpdated: new Date().toISOString(),
+  };
+
+  try {
+    fs.writeFileSync(POLICY_CONFIG_FILE, JSON.stringify(updated, null, 2), 'utf-8');
+    // Sync with tier config
+    saveTierConfig({
+      tier1: updated.dlpRules.regex,
+      tier2: updated.dlpRules.entropy,
+      tier3: updated.dlpRules.scope,
+      tier4: updated.dlpRules.slm,
+    });
+  } catch (err: any) {
+    console.error(`[MCP Sentinel] Failed to save policy config: ${err.message}`);
+  }
+
+  return updated;
+}
+
+/**
+ * Resets policy configuration to defaults and syncs tiers.
+ */
+export function resetPolicyConfig(): PolicyConfig {
+  const resetConfig = { ...DEFAULT_POLICY_CONFIG, lastUpdated: new Date().toISOString() };
+  try {
+    fs.writeFileSync(POLICY_CONFIG_FILE, JSON.stringify(resetConfig, null, 2), 'utf-8');
+    saveTierConfig({
+      tier1: resetConfig.dlpRules.regex,
+      tier2: resetConfig.dlpRules.entropy,
+      tier3: resetConfig.dlpRules.scope,
+      tier4: resetConfig.dlpRules.slm,
+    });
+  } catch (err: any) {
+    console.error(`[MCP Sentinel] Failed to reset policy config: ${err.message}`);
+  }
+  return resetConfig;
+}
+
 /**
  * Formats a terminal-friendly layer dashboard.
  */
@@ -131,3 +253,4 @@ export function formatLayersDashboard(config: TierConfig): string {
     ''
   ].join('\n');
 }
+

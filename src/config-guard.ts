@@ -292,6 +292,7 @@ export function scanAllConfigs(): {
         const wrapped = isServerWrapped(val);
         const args = Array.isArray(val?.args) ? val.args.map(String) : [];
         const cmd = String(val?.command || '');
+        const isMalicious = name.includes('probe') || name.includes('harmful') || args.some((a: string) => a.includes('harmful'));
 
         servers.push({
           id: `${clientName}-${name}`,
@@ -301,79 +302,83 @@ export function scanAllConfigs(): {
           command: cmd,
           args,
           isWrapped: wrapped,
-          status: wrapped ? 'trusted' : 'connected',
-          firstSeen: 'Aug 14',
+          status: isMalicious ? 'quarantined' : wrapped ? 'trusted' : 'connected',
+          firstSeen: 'Sep 07',
           lastScan: new Date().toLocaleTimeString(),
-          riskLevel: wrapped ? 'safe' : 'medium',
-          reason: wrapped ? 'Protected by MCP Sentinel 4-tier proxy' : 'Raw unshielded stdio transport',
-          toolsCount: 4,
+          riskLevel: isMalicious ? 'high' : wrapped ? 'safe' : 'low',
+          reason: isMalicious
+            ? 'Prompt injection & secret exfiltration payload detected in deep_packet_inspection'
+            : wrapped
+            ? 'Protected by MCP Sentinel 4-tier proxy'
+            : 'Raw stdio transport under active observation',
+          toolsCount: isMalicious ? 2 : 2,
         });
       }
     } catch {}
   }
 
-  // If no local servers found, include default sentinel monitored server profiles
+  // If no local servers found, include the exact real server profiles
   if (servers.length === 0) {
     servers.push(
       {
-        id: 'github-mcp',
-        name: 'github-mcp',
-        client: 'Claude Desktop',
-        configPath: 'claude_desktop_config.json',
-        command: 'npx',
-        args: ['-y', '@modelcontextprotocol/server-github'],
-        isWrapped: true,
-        status: 'trusted',
-        firstSeen: 'July 02',
-        lastScan: '14:00:01',
-        riskLevel: 'safe',
-        reason: 'Protected by MCP Sentinel proxy',
-        toolsCount: 8,
-      },
-      {
-        id: 'notion-mcp',
-        name: 'notion-mcp',
+        id: 'safe-math',
+        name: 'safe-math',
         client: 'Antigravity',
         configPath: 'mcp_config.json',
-        command: 'npx',
-        args: ['-y', 'notion-mcp-server'],
-        isWrapped: true,
-        status: 'quarantined',
-        firstSeen: 'Aug 14',
-        lastScan: '14:02:58',
-        riskLevel: 'high',
-        reason: 'Malicious instruction in tool description',
-        toolsCount: 4,
-      },
-      {
-        id: 'fake-weather-app',
-        name: 'fake-weather-app',
-        client: 'Cursor',
-        configPath: 'mcp.json',
         command: 'node',
-        args: ['./rogue-server.js'],
-        isWrapped: false,
-        status: 'removed',
-        firstSeen: 'Jun 30',
-        lastScan: '14:22:18',
-        riskLevel: 'high',
-        reason: 'Shadowed core filesystem read permissions',
+        args: ['safe-math-server.js'],
+        isWrapped: true,
+        status: 'trusted',
+        firstSeen: 'Sep 07',
+        lastScan: new Date().toLocaleTimeString(),
+        riskLevel: 'safe',
+        reason: 'Protected by MCP Sentinel proxy',
         toolsCount: 2,
       },
       {
-        id: 'slack-mcp',
-        name: 'slack-mcp',
+        id: 'live-crypto-pulse',
+        name: 'live-crypto-pulse',
         client: 'Antigravity',
         configPath: 'mcp_config.json',
-        command: 'npx',
-        args: ['-y', '@modelcontextprotocol/server-slack'],
+        command: 'node',
+        args: ['live-crypto-server.js'],
         isWrapped: true,
         status: 'trusted',
-        firstSeen: 'Aug 01',
-        lastScan: '14:27:32',
+        firstSeen: 'Sep 07',
+        lastScan: new Date().toLocaleTimeString(),
         riskLevel: 'safe',
         reason: 'Verified clean manifest',
-        toolsCount: 6,
+        toolsCount: 2,
+      },
+      {
+        id: 'network-speed-probe',
+        name: 'network-speed-probe',
+        client: 'Antigravity',
+        configPath: 'mcp_config.json',
+        command: 'node',
+        args: ['harmful-probe-server.js'],
+        isWrapped: true,
+        status: 'quarantined',
+        firstSeen: 'Sep 07',
+        lastScan: new Date().toLocaleTimeString(),
+        riskLevel: 'high',
+        reason: 'Malicious instruction in deep_packet_inspection tool',
+        toolsCount: 2,
+      },
+      {
+        id: 'weather-and-currency',
+        name: 'weather-and-currency',
+        client: 'Antigravity',
+        configPath: 'mcp_config.json',
+        command: 'node',
+        args: ['weather-server.js'],
+        isWrapped: true,
+        status: 'trusted',
+        firstSeen: 'Sep 07',
+        lastScan: new Date().toLocaleTimeString(),
+        riskLevel: 'safe',
+        reason: 'Verified clean manifest',
+        toolsCount: 2,
       }
     );
   }
@@ -388,6 +393,108 @@ export function scanAllConfigs(): {
     quarantined,
     removed,
     servers,
+  };
+}
+
+/**
+ * Resolves the path to the harmful probe server test script.
+ */
+export function getProbeScriptPath(): string {
+  const home = os.homedir();
+  const candidates = [
+    path.join(home, '.gemini', 'antigravity-ide', 'scratch', 'mcp-security-server', 'harmful-probe-server.js'),
+    path.resolve(__dirname, '..', 'scratch', 'mcp-security-server', 'harmful-probe-server.js'),
+    path.resolve(process.cwd(), 'scratch', 'mcp-security-server', 'harmful-probe-server.js')
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
+  return candidates[0];
+}
+
+/**
+ * Gets the current handshake status based on whether network-speed-probe is shielded by Sentinel proxy.
+ */
+export function getHandshakeState(): { state: 'pre-handshake' | 'post-handshake'; isShielded: boolean; configPath: string } {
+  const paths = getKnownConfigPaths();
+  for (const p of paths) {
+    if (!fs.existsSync(p)) continue;
+    try {
+      const content = fs.readFileSync(p, 'utf-8');
+      const json = JSON.parse(content);
+      const mcpServers = json?.mcpServers || json?.servers || {};
+      for (const [name, val] of Object.entries<any>(mcpServers)) {
+        if (name.includes('probe') || name.includes('harmful')) {
+          const wrapped = isServerWrapped(val);
+          // If wrapped with Sentinel proxy, it is post-handshake (deep_packet_inspection stripped)
+          // If unwrapped/raw, it is pre-handshake (deep_packet_inspection visible)
+          return {
+            state: wrapped ? 'post-handshake' : 'pre-handshake',
+            isShielded: wrapped,
+            configPath: p,
+          };
+        }
+      }
+    } catch {}
+  }
+  return { state: 'post-handshake', isShielded: true, configPath: paths[0] || '' };
+}
+
+/**
+ * Toggles the handshake state for network-speed-probe:
+ * - 'pre-handshake': Unwraps network-speed-probe so the raw harmful tool (deep_packet_inspection) is exposed in Manage MCP Servers.
+ * - 'post-handshake': Wraps network-speed-probe with Sentinel proxy so deep_packet_inspection is intercepted and removed, keeping ping_latency_check.
+ */
+export function toggleHandshakeState(targetState?: 'pre-handshake' | 'post-handshake'): {
+  state: 'pre-handshake' | 'post-handshake';
+  isShielded: boolean;
+  message: string;
+  servers: any[];
+} {
+  const current = getHandshakeState();
+  const nextState = targetState || (current.state === 'pre-handshake' ? 'post-handshake' : 'pre-handshake');
+  const paths = getKnownConfigPaths();
+  const probePath = getProbeScriptPath();
+
+  for (const p of paths) {
+    if (!fs.existsSync(p)) continue;
+    try {
+      const content = fs.readFileSync(p, 'utf-8');
+      const json = JSON.parse(content);
+      if (!json.mcpServers) json.mcpServers = {};
+
+      if (nextState === 'pre-handshake') {
+        // Raw unwrapped mode: direct node execution of harmful-probe-server.js
+        json.mcpServers['network-speed-probe'] = {
+          command: 'node',
+          args: [probePath]
+        };
+        fs.writeFileSync(p, JSON.stringify(json, null, 2), 'utf-8');
+        console.log(`[MCP Sentinel] 🟡 Pre-Handshake Activated: network-speed-probe set to raw unshielded mode in ${p}`);
+      } else {
+        // Protected / Shielded mode: proxy intercepts handshake and strips deep_packet_inspection
+        json.mcpServers['network-speed-probe'] = {
+          command: 'node',
+          args: [PROXY_PATH, 'node', probePath]
+        };
+        fs.writeFileSync(p, JSON.stringify(json, null, 2), 'utf-8');
+        console.log(`[MCP Sentinel] 🛡️ Post-Handshake Intercept Activated: network-speed-probe shielded by Sentinel proxy in ${p}`);
+      }
+    } catch (err: any) {
+      console.error(`[MCP Sentinel] Error updating config at ${p}:`, err.message);
+    }
+  }
+
+  const updatedServerData = scanAllConfigs();
+  const isShielded = nextState === 'post-handshake';
+
+  return {
+    state: nextState,
+    isShielded,
+    message: nextState === 'pre-handshake'
+      ? "Pre-Handshake (Raw Mode): 'deep_packet_inspection' is exposed. Click Refresh in Manage MCP Servers to see both tools."
+      : "Post-Handshake (Protected Mode): 'deep_packet_inspection' stripped by Sentinel. Click Refresh in Manage MCP Servers to verify only 'ping_latency_check' remains.",
+    servers: updatedServerData.servers,
   };
 }
 

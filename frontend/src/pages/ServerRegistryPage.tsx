@@ -450,23 +450,23 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
                 <tbody className="text-white font-[300]">
                   {[
                     {
-                      time: "14:02:11",
-                      server: "notion-mcp",
-                      event: "Malicious tool detected (delete_all_files)",
+                      time: "23:05:11",
+                      server: "network-speed-probe",
+                      event: "Quarantined tool (deep_packet_inspection) - Secret exfiltration attempt",
                     },
                     {
-                      time: "14:01:58",
-                      server: "github-mcp",
-                      event: "Handshake completed",
+                      time: "23:05:00",
+                      server: "safe-math",
+                      event: "Handshake verified - 2 safe tools registered",
                     },
                     {
-                      time: "13:58:42",
-                      server: "fake-weather-mcp",
-                      event: 'Shadowed the core "read_file" permission',
+                      time: "23:05:00",
+                      server: "live-crypto-pulse",
+                      event: "Live price telemetry verified clean",
                     },
                     {
-                      time: "13:45:19",
-                      server: "slack-mcp",
+                      time: "23:05:00",
+                      server: "weather-and-currency",
                       event: "Server registered successfully",
                     },
                   ].map((row, i) => (
@@ -488,7 +488,7 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
             {/* Server name + host */}
             <div>
               <p className="font-['Helvetica',sans-serif] font-bold text-white text-[15px] leading-snug">
-                {selectedServer?.name || "notion-mcp"}
+                {selectedServer?.name || "network-speed-probe"}
               </p>
               <p className="font-['Helvetica',sans-serif] text-white/60 text-[11px] mt-0.5 truncate">
                 {selectedServer?.configPath || "mcp_config.json"}
