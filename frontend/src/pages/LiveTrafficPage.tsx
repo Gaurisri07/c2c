@@ -85,9 +85,9 @@ function IconDanger() {
   );
 }
 
-function IconShield() {
+function IconShield({ size = 20 }: { size?: number }) {
   return (
-    <svg width="33" height="37" viewBox="0 0 33 37" fill="none">
+    <svg width={size} height={Math.round(size * 1.12)} viewBox="0 0 33 37" fill="none">
       <path d="M16.5 0L0 6.5V18.5C0 28 7.5 36.8 16.5 37C25.5 36.8 33 28 33 18.5V6.5L16.5 0Z" fill="rgba(129,197,255,0.15)" stroke="#81C5FF" strokeWidth="1.5" />
       <path d="M10 18L14.5 22.5L23 13" stroke="#81C5FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
@@ -131,21 +131,11 @@ function IconYellowWarn({ size = 18 }: { size?: number }) {
   );
 }
 
-function IconCheck({ size = 16 }: { size?: number }) {
+function IconCheck({ size = 18 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
-      <circle cx="8" cy="8" r="7" stroke="#34C759" strokeWidth="1.5" />
-      <path d="M5 8L7 10L11 6" stroke="#34C759" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function IconAutomate() {
-  return (
-    <svg width="21" height="20" viewBox="0 0 21 20" fill="none">
-      <path d="M10.5 0C5 0 0.5 4.5 0.5 10C0.5 15.5 5 20 10.5 20C16 20 20.5 15.5 20.5 10C20.5 4.5 16 0 10.5 0ZM10.5 18C6.1 18 2.5 14.4 2.5 10C2.5 5.6 6.1 2 10.5 2C14.9 2 18.5 5.6 18.5 10C18.5 14.4 14.9 18 10.5 18Z" fill="#5B8DB8" />
-      <path d="M10.5 5L13.5 10H7.5L10.5 5Z" fill="#5B8DB8" />
-      <path d="M10.5 15L7.5 10H13.5L10.5 15Z" fill="#5B8DB8" />
+      <circle cx="8" cy="8" r="7" fill="rgba(52,199,89,0.15)" stroke="#34C759" strokeWidth="1.5" />
+      <path d="M4.5 8L7 10.5L11.5 5.5" stroke="#34C759" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -428,9 +418,11 @@ function DlpStat({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1 min-w-[140px] font-helvetica">
-      <div className="flex items-center gap-2">
-        <span className="shrink-0">{icon}</span>
+    <div className="flex flex-col justify-start gap-1 min-w-[140px] font-helvetica">
+      <div className="flex items-center gap-2.5 h-[26px]">
+        <div className="w-[20px] h-[20px] flex items-center justify-center shrink-0">
+          {icon}
+        </div>
         <span
           className="text-white text-[24px] font-['Helvetica',Helvetica,Arial,sans-serif] leading-none font-normal"
         >
@@ -438,7 +430,7 @@ function DlpStat({
         </span>
       </div>
       <span
-        className="text-[#9c9c9c] text-[14px]"
+        className="text-[#9c9c9c] text-[14px] leading-snug"
       >
         {label}
       </span>
@@ -761,7 +753,7 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
             <DlpStat
               value={allowedCount}
               label="Allowed calls"
-              icon={<IconAutomate />}
+              icon={<IconCheck size={20} />}
             />
             <DlpStat
               value={0}

@@ -14,7 +14,7 @@ import {
 function IcoHome() {
   return (
     <svg width="22" height="19" viewBox="0 0 22 19" fill="none">
-      <path d="M1 9.5L11 1L21 9.5V18H14V12H8V18H1V9.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M1 9.5L11 1L21 9.5V18H14V12H8V18H1V9.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -22,7 +22,7 @@ function IcoHome() {
 function IcoDashboard() {
   return (
     <svg width="22" height="19" viewBox="0 0 22 19" fill="none">
-      <path d="M0 10.5556H7.33333V19H0V10.5556ZM7.33333 0H14.6667V19H7.33333V0ZM14.6667 5.27778H22V19H14.6667V5.27778Z" fill="currentColor"/>
+      <path d="M0 10.5556H7.33333V19H0V10.5556ZM7.33333 0H14.6667V19H7.33333V0ZM14.6667 5.27778H22V19H14.6667V5.27778Z" fill="currentColor" />
     </svg>
   );
 }
@@ -30,10 +30,10 @@ function IcoDashboard() {
 function IcoServer() {
   return (
     <svg width="20" height="18" viewBox="0 0 20 18" fill="none">
-      <rect x="0.5" y="0.5" width="19" height="7" rx="1.5" stroke="currentColor"/>
-      <rect x="0.5" y="10.5" width="19" height="7" rx="1.5" stroke="currentColor"/>
-      <circle cx="16" cy="4" r="1.5" fill="currentColor"/>
-      <circle cx="16" cy="14" r="1.5" fill="currentColor"/>
+      <rect x="0.5" y="0.5" width="19" height="7" rx="1.5" stroke="currentColor" />
+      <rect x="0.5" y="10.5" width="19" height="7" rx="1.5" stroke="currentColor" />
+      <circle cx="16" cy="4" r="1.5" fill="currentColor" />
+      <circle cx="16" cy="14" r="1.5" fill="currentColor" />
     </svg>
   );
 }
@@ -41,7 +41,7 @@ function IcoServer() {
 function IcoFolder() {
   return (
     <svg width="22" height="18" viewBox="0 0 22 18" fill="none">
-      <path d="M1 3C1 1.895 1.895 1 3 1H9L11 4H19C20.105 4 21 4.895 21 6V15C21 16.105 20.105 17 19 17H3C1.895 17 1 16.105 1 15V3Z" fill="currentColor"/>
+      <path d="M1 3C1 1.895 1.895 1 3 1H9L11 4H19C20.105 4 21 4.895 21 6V15C21 16.105 20.105 17 19 17H3C1.895 17 1 16.105 1 15V3Z" fill="currentColor" />
     </svg>
   );
 }
@@ -49,7 +49,7 @@ function IcoFolder() {
 function IcoActivity() {
   return (
     <svg width="22" height="18" viewBox="0 0 22 18" fill="none">
-      <polyline points="1,9 5,9 7,1 9,17 11,5 13,13 15,9 21,9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+      <polyline points="1,9 5,9 7,1 9,17 11,5 13,13 15,9 21,9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -57,9 +57,9 @@ function IcoActivity() {
 function IcoTriangle() {
   return (
     <svg width="22" height="20" viewBox="0 0 22 20" fill="none">
-      <path d="M11 1L21 18H1L11 1Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-      <line x1="11" y1="8" x2="11" y2="13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-      <circle cx="11" cy="15.5" r="1" fill="currentColor"/>
+      <path d="M11 1L21 18H1L11 1Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <line x1="11" y1="8" x2="11" y2="13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="11" cy="15.5" r="1" fill="currentColor" />
     </svg>
   );
 }
@@ -67,8 +67,8 @@ function IcoTriangle() {
 function IcoSettings() {
   return (
     <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-      <path d="M11 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" strokeWidth="1.6"/>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" strokeWidth="1.6"/>
+      <path d="M11 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" strokeWidth="1.6" />
     </svg>
   );
 }
@@ -82,13 +82,13 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
-  { id: "home",              label: "Home",               icon: IcoHome      },
-  { id: "dashboard",         label: "Dashboard",          icon: IcoDashboard },
-  { id: "handshake",         label: "Handshake Monitor",  icon: IcoServer    },
-  { id: "registry",          label: "Server Registry",    icon: IcoFolder    },
-  { id: "traffic",           label: "Live Traffic",       icon: IcoActivity  },
-  { id: "threats",           label: "Threats",            icon: IcoTriangle  },
-  { id: "settings",          label: "Policy & Settings",  icon: IcoSettings  },
+  { id: "home", label: "Home", icon: IcoHome },
+  { id: "dashboard", label: "Dashboard", icon: IcoDashboard },
+  { id: "handshake", label: "Handshake Monitor", icon: IcoServer },
+  { id: "registry", label: "Server Registry", icon: IcoFolder },
+  { id: "traffic", label: "Live Traffic", icon: IcoActivity },
+  { id: "threats", label: "Threats", icon: IcoTriangle },
+  { id: "settings", label: "Policy & Settings", icon: IcoSettings },
 ];
 
 interface SidebarProps {
@@ -121,11 +121,10 @@ function Sidebar({ currentTab, onNavigate }: SidebarProps) {
             <button
               key={id}
               onClick={() => onNavigate(id)}
-              className={`flex items-center gap-3.5 w-full h-[46px] px-4 rounded-[14px] text-left transition-colors cursor-pointer ${
-                active
-                  ? "border border-[#81c5ff] text-[#81c5ff] bg-[rgba(129,197,255,0.06)]"
-                  : "text-[#9c9c9c] hover:text-white hover:bg-white/5 border border-transparent"
-              }`}
+              className={`flex items-center gap-3.5 w-full h-[46px] px-4 rounded-[14px] text-left transition-colors cursor-pointer ${active
+                ? "border border-[#81c5ff] text-[#81c5ff] bg-[rgba(129,197,255,0.06)]"
+                : "text-[#9c9c9c] hover:text-white hover:bg-white/5 border border-transparent"
+                }`}
             >
               <span className="w-[22px] h-[22px] flex items-center justify-center shrink-0 text-[#81c5ff]">
                 <Icon />
@@ -170,10 +169,10 @@ function StepBox({ children, label, sub }: { children: React.ReactNode; label: s
 // ── Tool pills ────────────────────────────────────────────────────────────────
 
 const PILLS = [
-  { label: "search_pages",     blocked: false },
-  { label: "delete_all_files", blocked: true  },
-  { label: "create_pages",     blocked: false },
-  { label: "list_workspaces",  blocked: false },
+  { label: "search_pages", blocked: false },
+  { label: "delete_all_files", blocked: true },
+  { label: "create_pages", blocked: false },
+  { label: "list_workspaces", blocked: false },
 ];
 
 // ── Monospace code block ──────────────────────────────────────────────────────
@@ -290,7 +289,7 @@ function ManifestCard({
         >
           {footerAction}
           <svg width="14" height="11" viewBox="0 0 14 11" fill="none">
-            <path d="M1 5.5H13M8.5 1L13 5.5L8.5 10" stroke="#81C5FF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M1 5.5H13M8.5 1L13 5.5L8.5 10" stroke="#81C5FF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
       </div>
@@ -424,11 +423,10 @@ export default function HandshakeMonitor({ onNavigate, onNavigateHome }: Handsha
             <button
               onClick={handleToggleHandshake}
               disabled={isToggling}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg border text-[13px] font-helvetica transition-colors cursor-pointer disabled:opacity-50 ${
-                handshakeState === "pre-handshake"
-                  ? "border-[#ff383c]/60 text-[#ff383c] hover:bg-[#ff383c]/10 bg-[rgba(255,56,60,0.05)]"
-                  : "border-[#34c759]/60 text-[#34c759] hover:bg-[#34c759]/10 bg-[rgba(52,199,89,0.05)]"
-              }`}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg border text-[13px] font-helvetica transition-colors cursor-pointer disabled:opacity-50 ${handshakeState === "pre-handshake"
+                ? "border-[#ff383c]/60 text-[#ff383c] hover:bg-[#ff383c]/10 bg-[rgba(255,56,60,0.05)]"
+                : "border-[#34c759]/60 text-[#34c759] hover:bg-[#34c759]/10 bg-[rgba(52,199,89,0.05)]"
+                }`}
               title="Toggle whether the malicious server is present (pre-handshake) or quarantined/removed (post-handshake)"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -437,8 +435,8 @@ export default function HandshakeMonitor({ onNavigate, onNavigateHome }: Handsha
               {isToggling
                 ? "Updating..."
                 : handshakeState === "pre-handshake"
-                ? "Switch to Post-Handshake (Quarantine) 🛡️"
-                : "Switch to Pre-Handshake (Restore) 🟡"}
+                  ? "Switch to Post-Handshake (Quarantine) "
+                  : "Switch to Pre-Handshake (Restore) "}
             </button>
 
             <button
@@ -458,7 +456,7 @@ export default function HandshakeMonitor({ onNavigate, onNavigateHome }: Handsha
         {statusMessage && (
           <div className="mb-4 p-3.5 rounded-xl border border-[#81c5ff]/30 bg-[#81c5ff]/10 text-white text-[13px] flex items-center justify-between animate-fadeIn">
             <div className="flex items-center gap-2">
-              <span className="text-[#81c5ff] font-bold">ℹ️ Status:</span>
+              <span className="text-[#81c5ff] font-bold">Status:</span>
               <span>{statusMessage}</span>
             </div>
             <button
@@ -479,18 +477,17 @@ export default function HandshakeMonitor({ onNavigate, onNavigateHome }: Handsha
                 <span className="font-['Helvetica',sans-serif] text-[14px] font-semibold text-white">
                   Active Lifecycle State:
                 </span>
-                <span className={`px-2.5 py-0.5 rounded-full text-xs font-mono font-medium ${
-                  handshakeState === "pre-handshake"
-                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-                    : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                }`}>
+                <span className={`px-2.5 py-0.5 rounded-full text-xs font-mono font-medium ${handshakeState === "pre-handshake"
+                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                  : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                  }`}>
                   {handshakeState === "pre-handshake" ? "PRE-HANDSHAKE (Malicious Server Visible in Manage MCP Servers)" : "POST-HANDSHAKE (Malicious Server Removed by Sentinel)"}
                 </span>
               </div>
               <p className="text-xs text-white/60 mt-1">
                 {handshakeState === "pre-handshake"
-                  ? "🟡 network-speed-probe is present in mcp_config.json. Open 'Manage MCP servers' in your IDE and click Refresh to view."
-                  : "🛡️ network-speed-probe was quarantined and removed from mcp_config.json upon handshake interception. Click Refresh in your IDE to verify."}
+                  ? "network-speed-probe is present in mcp_config.json. Open 'Manage MCP servers' in your IDE and click Refresh to view."
+                  : "network-speed-probe was quarantined and removed from mcp_config.json upon handshake interception. Click Refresh in your IDE to verify."}
               </p>
             </div>
           </div>
@@ -498,13 +495,12 @@ export default function HandshakeMonitor({ onNavigate, onNavigateHome }: Handsha
           <button
             onClick={handleToggleHandshake}
             disabled={isToggling}
-            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all cursor-pointer border ${
-              handshakeState === "pre-handshake"
-                ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/30"
-                : "bg-amber-500/20 border-amber-500/50 text-amber-300 hover:bg-amber-500/30"
-            }`}
+            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all cursor-pointer border ${handshakeState === "pre-handshake"
+              ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/30"
+              : "bg-amber-500/20 border-amber-500/50 text-amber-300 hover:bg-amber-500/30"
+              }`}
           >
-            {handshakeState === "pre-handshake" ? "⚡ Trigger Handshake Intercept" : "🔄 Toggle Back to Pre-Handshake"}
+            {handshakeState === "pre-handshake" ? "Trigger Handshake Intercept" : "Toggle Back to Pre-Handshake"}
           </button>
         </div>
 
@@ -530,10 +526,10 @@ export default function HandshakeMonitor({ onNavigate, onNavigateHome }: Handsha
             <StepBox label={handshake?.server || "network-speed-probe"} sub="server">
               {/* Document icon */}
               <svg width="32" height="38" viewBox="0 0 24 28" fill="none">
-                <path d="M3 1H15L21 7V27H3V1Z" stroke="#5B8DB8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M15 1V7H21" stroke="#5B8DB8" strokeWidth="2" strokeLinejoin="round"/>
-                <line x1="7" y1="14" x2="17" y2="14" stroke="#5B8DB8" strokeWidth="1.6" strokeLinecap="round"/>
-                <line x1="7" y1="18" x2="17" y2="18" stroke="#5B8DB8" strokeWidth="1.6" strokeLinecap="round"/>
+                <path d="M3 1H15L21 7V27H3V1Z" stroke="#5B8DB8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M15 1V7H21" stroke="#5B8DB8" strokeWidth="2" strokeLinejoin="round" />
+                <line x1="7" y1="14" x2="17" y2="14" stroke="#5B8DB8" strokeWidth="1.6" strokeLinecap="round" />
+                <line x1="7" y1="18" x2="17" y2="18" stroke="#5B8DB8" strokeWidth="1.6" strokeLinecap="round" />
               </svg>
             </StepBox>
 
@@ -543,8 +539,8 @@ export default function HandshakeMonitor({ onNavigate, onNavigateHome }: Handsha
             <StepBox label="Sentinel" sub="proxy">
               {/* Shield + check icon */}
               <svg width="38" height="44" viewBox="0 0 48 55" fill="none">
-                <path d="M24 2L4 10V26C4 39.3 12.5 51.7 24 56C35.5 51.7 44 39.3 44 26V10L24 2Z" fill="#5B8DB8"/>
-                <path d="M14 27L21 34L34 20" stroke="#010106" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M24 2L4 10V26C4 39.3 12.5 51.7 24 56C35.5 51.7 44 39.3 44 26V10L24 2Z" fill="#5B8DB8" />
+                <path d="M14 27L21 34L34 20" stroke="#010106" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </StepBox>
 
@@ -554,7 +550,7 @@ export default function HandshakeMonitor({ onNavigate, onNavigateHome }: Handsha
             <StepBox label={handshake?.agent || "Antigravity IDE"} sub="agent">
               {/* Wrench icon */}
               <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
-                <path d="M37.2 8.8a10 10 0 0 0-17.2 9.6L4 34a4 4 0 0 0 5.6 5.6l16-16a10 10 0 0 0 11.6-14.8z" fill="#5B8DB8"/>
+                <path d="M37.2 8.8a10 10 0 0 0-17.2 9.6L4 34a4 4 0 0 0 5.6 5.6l16-16a10 10 0 0 0 11.6-14.8z" fill="#5B8DB8" />
               </svg>
             </StepBox>
           </div>
@@ -580,7 +576,7 @@ export default function HandshakeMonitor({ onNavigate, onNavigateHome }: Handsha
                   textDecoration: blocked ? "line-through" : "none",
                 }}
               >
-                {label} {blocked && "⚠️"}
+                {label}
               </span>
             ))}
           </div>
@@ -607,8 +603,10 @@ export default function HandshakeMonitor({ onNavigate, onNavigateHome }: Handsha
                   color: "#ff383c",
                 }}
               >
-                <svg width="13" height="12" viewBox="0 0 16 14" fill="none">
-                  <path d="M8 1L15 13H1L8 1Z" fill="#FF383C"/>
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="7" stroke="#FF383C" strokeWidth="1.5" />
+                  <path d="M8 4.5V8.5" stroke="#FF383C" strokeWidth="1.5" strokeLinecap="round" />
+                  <circle cx="8" cy="11.5" r="0.75" fill="#FF383C" />
                 </svg>
                 {blockedCount} blocked
               </span>
@@ -660,8 +658,9 @@ export default function HandshakeMonitor({ onNavigate, onNavigateHome }: Handsha
                   color: "rgba(255,255,255,0.9)",
                 }}
               >
-                <svg width="13" height="12" viewBox="0 0 14 12" fill="none">
-                  <path d="M1.5 6L5.5 10L12.5 2" stroke="#34C759" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="7" stroke="#34C759" strokeWidth="1.5" />
+                  <path d="M4.5 8L7 10.5L11.5 5.5" stroke="#34C759" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 {allowedCount} allowed
               </span>

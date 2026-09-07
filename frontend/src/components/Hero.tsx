@@ -63,11 +63,11 @@ export default function Hero({ onNavigate }: HeroProps) {
   }, []);
 
   return (
-    <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 pt-6 pb-16">
+    <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 pt-2 pb-16">
       <div className="flex flex-col lg:flex-row items-start gap-10 lg:gap-6">
 
         {/* ── Left column: Heading + Body ─────────────────────────── */}
-        <div className="flex-shrink-0 w-full lg:w-[50%] xl:w-[46%] flex flex-col pt-8 lg:pt-14">
+        <div className="flex-shrink-0 w-full lg:w-[50%] xl:w-[46%] flex flex-col pt-4 lg:pt-8">
           <h1 className="hero-gradient-text font-conthrax text-[48px] lg:text-[68px] leading-tight whitespace-pre-wrap mb-8">
             {`Trust Before \nYou Connect`}
           </h1>
@@ -85,41 +85,11 @@ export default function Hero({ onNavigate }: HeroProps) {
               </span>
             </div>
 
-            <div className="flex items-center gap-2 pr-3 border-r border-[rgba(91,141,184,0.3)]">
+            <div className="flex items-center gap-2">
               <span className="font-helvetica text-[13px] text-white/80">
                 Protected Servers: <strong className="text-white">{status?.servers.total ?? 4}</strong>
               </span>
             </div>
-
-            {onNavigate && (
-              <button
-                onClick={() => onNavigate("handshake")}
-                className="ml-auto text-[12px] font-conthrax text-[#81c5ff] hover:text-white transition-colors bg-transparent border-none cursor-pointer flex items-center gap-1"
-              >
-                Inspect Live →
-              </button>
-            )}
-          </div>
-
-          {/* Smooth Scroll Down to Features button */}
-          <div className="mt-8 flex items-center gap-3">
-            <button
-              onClick={() => {
-                document.getElementById("features")?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-[rgba(129,197,255,0.3)] bg-[rgba(129,197,255,0.04)] hover:bg-[rgba(129,197,255,0.12)] text-[#81c5ff] text-[13px] font-helvetica cursor-pointer transition-all hover:scale-105 group"
-            >
-              <span>Explore Sentinel Features</span>
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 16 16"
-                fill="none"
-                className="transform group-hover:translate-y-0.5 transition-transform"
-              >
-                <path d="M8 2V13M8 13L3 8M8 13L13 8" stroke="#81C5FF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
           </div>
         </div>
 

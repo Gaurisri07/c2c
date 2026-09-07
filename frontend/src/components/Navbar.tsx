@@ -14,28 +14,28 @@ export default function Navbar({ currentPage = "home", onNavigate }: NavbarProps
   };
 
   return (
-    <nav className="relative flex items-center justify-between px-6 lg:px-12 py-5 w-full max-w-[1440px] mx-auto">
-      {/* Left section: Logo + Nav links placed next to each other */}
-      <div className="flex items-center gap-10 lg:gap-14">
+    <nav className="relative flex items-center px-6 lg:px-12 pt-6 pb-4 w-full max-w-[1440px] mx-auto">
+      {/* Left section: Logo + Nav links aligned together on the left */}
+      <div className="flex items-center gap-10 sm:gap-12 lg:gap-16">
         <button
           onClick={(e) => handleNav("home", e)}
-          className="bg-transparent border-none p-0 cursor-pointer text-left flex items-center hover:opacity-85 transition-opacity"
+          className="bg-transparent border-none p-0 cursor-pointer text-left flex items-center hover:opacity-85 transition-opacity shrink-0"
         >
           <img
             src="/logo.svg"
             alt="MCP Sentinel"
-            className="w-[220px] lg:w-[260px] h-auto object-contain"
+            className="w-[140px] lg:w-[165px] h-auto object-contain"
             onError={(e) => {
               (e.target as HTMLImageElement).src = imgLogo;
             }}
           />
         </button>
 
-        <div className="flex items-center gap-8 lg:gap-12">
+        <div className="flex items-center gap-8 sm:gap-10 lg:gap-12">
           <a
             href="#/"
             onClick={(e) => handleNav("home", e)}
-            className={`font-conthrax text-[18px] lg:text-[22px] tracking-wide no-underline hover:opacity-80 transition-opacity ${
+            className={`font-conthrax text-[16px] lg:text-[19px] tracking-wide no-underline hover:opacity-80 transition-opacity ${
               currentPage === "home" ? "text-[#81c5ff]" : "text-[#fefefe]"
             }`}
           >
@@ -44,7 +44,7 @@ export default function Navbar({ currentPage = "home", onNavigate }: NavbarProps
           <a
             href="#/dashboard"
             onClick={(e) => handleNav("dashboard", e)}
-            className={`font-conthrax text-[18px] lg:text-[22px] tracking-wide no-underline hover:opacity-80 transition-opacity ${
+            className={`font-conthrax text-[16px] lg:text-[19px] tracking-wide no-underline hover:opacity-80 transition-opacity ${
               currentPage === "dashboard" ? "text-[#81c5ff]" : "text-[#fefefe]"
             }`}
           >
@@ -63,7 +63,7 @@ export default function Navbar({ currentPage = "home", onNavigate }: NavbarProps
                 document.getElementById("features")?.scrollIntoView({ behavior: "smooth", block: "start" });
               }
             }}
-            className="font-conthrax text-[#fefefe] text-[18px] lg:text-[22px] tracking-wide no-underline hover:opacity-80 transition-opacity cursor-pointer"
+            className="font-conthrax text-[#fefefe] text-[16px] lg:text-[19px] tracking-wide no-underline hover:opacity-80 transition-opacity cursor-pointer"
           >
             Features
           </a>

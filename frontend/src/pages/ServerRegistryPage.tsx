@@ -306,7 +306,7 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
         </p>
 
         {/* Stat cards */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-4 mb-6">
           {/* Total servers */}
           <div className="bg-[rgba(91,141,184,0.05)] border border-[rgba(91,141,184,0.6)] rounded-[20px] px-5 py-4 flex items-center gap-4">
             <div className="shrink-0">
@@ -378,7 +378,7 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
         </div>
 
         {/* Known servers table */}
-        <div className="bg-[rgba(91,141,184,0.05)] border border-[rgba(91,141,184,0.6)] rounded-[20px] px-6 py-5">
+        <div className="bg-[rgba(91,141,184,0.05)] border border-[rgba(91,141,184,0.6)] rounded-[20px] px-6 py-5 mb-6">
           <h2 className="font-['Helvetica',sans-serif] font-bold text-white text-[20px] mb-4">Known servers</h2>
           <div className="overflow-x-auto">
             <table className="w-full font-['Helvetica',sans-serif] text-[15px]">
