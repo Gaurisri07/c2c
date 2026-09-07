@@ -1,34 +1,51 @@
 import imgShield from "@/imports/Homepage/15829d76de73831595d9c6553490e0c0e1dc6491.png";
 
-// Circuit connector geometry (viewBox: "0 0 660 380")
-// Left pill right edge: x=140, shield left edge: x=225
-// Each path: M 140 labelY H bendX L 225 shieldY — all exact 45° diagonals
-const CONNECTORS = [
-  // label y, shield y, bend x  |  verify: from (bendX, labelY) to (225, shieldY) → Δx=Δy
-  { labelY: 73,  shieldY: 105, bendX: 193 }, // Δ=32 ✓
-  { labelY: 151, shieldY: 170, bendX: 206 }, // Δ=19 ✓
-  { labelY: 229, shieldY: 220, bendX: 216 }, // Δ= 9 ✓
-  { labelY: 307, shieldY: 278, bendX: 196 }, // Δ=29 ✓
-];
+// Circuit diagram coordinates (viewBox: "0 0 740 380")
+// Left pills: x=10 to x=150 (width=140, height=38, rx=10)
+// Center Shield image: x=240, y=40, width=260, height=260
+// Shield body: left edge x≈316-345, right edge x≈395-424
+// Right pills: x=590 to x=705 (width=115, height=38, rx=10)
 
-const LEFT_TAGS  = ["Tools", "Permissions", "Descriptions", "Schema"];
-const LEFT_TOPS  = [54, 132, 210, 288]; // pill top y values
+const LEFT_TAGS = [
+  { label: "Tools",        y: 44,  centerY: 63  },
+  { label: "Permissions",  y: 118, centerY: 137 },
+  { label: "Descriptions", y: 192, centerY: 211 },
+  { label: "Schema",       y: 266, centerY: 285 },
+];
 
 const RIGHT_TAGS = [
-  { label: "Safe",    x: 488, y: 98,  w: 80  },
-  { label: "Flagged", x: 478, y: 188, w: 100 },
-  { label: "Blocked", x: 476, y: 260, w: 108 },
+  { label: "Safe",    y: 60,  centerY: 79  },
+  { label: "Flagged", y: 154, centerY: 173 },
+  { label: "Blocked", y: 248, centerY: 267 },
 ];
 
-const PILL_H   = 38;
-const PILL_RX  = 10;
-const PILL_FILL   = "rgba(129,197,255,0.4)";
+// Left connectors: from pill right edge (x=150, centerY) -> shield left edge
+const LEFT_CONNECTORS = [
+  // Tools: horizontal -> 45° down-right -> touches top-left of shield
+  "M 150 63 H 250 L 316 129",
+  // Permissions: horizontal straight into left edge of shield
+  "M 150 137 H 316",
+  // Descriptions: horizontal -> 45° up-right -> touches mid-left waist of shield
+  "M 150 211 H 300 L 326 185",
+  // Schema: horizontal -> 45° up-right -> touches lower-left curve of shield
+  "M 150 285 H 280 L 345 220",
+];
+
+// Right connectors: from shield right edge -> right pill left edge (x=590, centerY)
+const RIGHT_CONNECTORS = [
+  // From top-right of shield -> 45° up-right -> horizontal into Safe pill
+  "M 424 129 L 474 79 H 590",
+  // From mid-right of shield -> horizontal straight into Flagged pill
+  "M 424 173 H 590",
+  // From lower-right curve of shield -> 45° down-right -> horizontal into Blocked pill
+  "M 395 220 L 442 267 H 590",
+];
+
+const PILL_H = 38;
+const PILL_RX = 10;
+const PILL_FILL = "rgba(129,197,255,0.4)";
 const PILL_STROKE = "#fefefe";
-const LINE_COLOR  = "#6B8CAD";
-const DOT_COLOR   = "#8BAAC8";
-const SHIELD_X = 225;
-const SHIELD_W = 255;
-const SHIELD_H = Math.round(SHIELD_W * 634 / 537); // preserve aspect ratio ≈ 301px
+const LINE_COLOR = "#fefefe";
 
 export default function Hero() {
   return (
@@ -51,77 +68,98 @@ export default function Hero() {
 
           {/* Desktop circuit diagram — pure SVG */}
           <svg
-            viewBox="0 0 660 380"
+            viewBox="0 0 740 380"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="hidden lg:block w-full"
+            className="hidden lg:block w-full max-w-[740px]"
             aria-label="MCP Sentinel diagram"
           >
-            {/* ── Shield image ────────────────────────────────────── */}
+            {/* ── Shield image (Centered) ─────────────────────────── */}
             <image
               href={imgShield}
-              x={SHIELD_X}
-              y={35}
-              width={SHIELD_W}
-              height={SHIELD_H}
+              x={240}
+              y={40}
+              width={260}
+              height={260}
               preserveAspectRatio="xMidYMid meet"
             />
 
-            {/* ── Circuit connector lines (left → shield) ─────────── */}
-            {CONNECTORS.map((c, i) => (
-              <g key={i}>
-                {/* horizontal + 45° diagonal — no trailing H, ends exactly at shield left */}
-                <path
-                  d={`M 140 ${c.labelY} H ${c.bendX} L ${SHIELD_X} ${c.shieldY}`}
-                  stroke={LINE_COLOR}
-                  strokeWidth="1.2"
-                />
-                {/* dot at bend joint */}
-                <circle cx={c.bendX} cy={c.labelY} r="2.8" fill={DOT_COLOR} />
-                {/* dot at shield entry */}
-                <circle cx={SHIELD_X} cy={c.shieldY} r="2.8" fill={DOT_COLOR} />
-              </g>
+            {/* ── Left Circuit Connectors (Pills → Shield) ─────────── */}
+            {LEFT_CONNECTORS.map((d, i) => (
+              <path
+                key={`left-conn-${i}`}
+                d={d}
+                stroke={LINE_COLOR}
+                strokeWidth="1.1"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            ))}
+
+            {/* ── Right Circuit Connectors (Shield → Pills) ─────────── */}
+            {RIGHT_CONNECTORS.map((d, i) => (
+              <path
+                key={`right-conn-${i}`}
+                d={d}
+                stroke={LINE_COLOR}
+                strokeWidth="1.1"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             ))}
 
             {/* ── Left tag pills ──────────────────────────────────── */}
-            {LEFT_TAGS.map((label, i) => {
-              const ty = LEFT_TOPS[i];
-              return (
-                <g key={label}>
-                  <rect
-                    x={0} y={ty} width={140} height={PILL_H} rx={PILL_RX}
-                    fill={PILL_FILL} stroke={PILL_STROKE} strokeWidth="0.8"
-                  />
-                  <text
-                    x={70} y={ty + PILL_H / 2}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fill="white"
-                    fontFamily="Arial, Helvetica, sans-serif"
-                    fontSize="15"
-                  >
-                    {label}
-                  </text>
-                </g>
-              );
-            })}
-
-            {/* ── Right tag pills (no connector stubs) ────────────── */}
-            {RIGHT_TAGS.map(({ label, x, y, w }) => (
-              <g key={label}>
+            {LEFT_TAGS.map((tag) => (
+              <g key={tag.label}>
                 <rect
-                  x={x} y={y} width={w} height={PILL_H} rx={PILL_RX}
-                  fill={PILL_FILL} stroke={PILL_STROKE} strokeWidth="0.8"
+                  x={10}
+                  y={tag.y}
+                  width={140}
+                  height={PILL_H}
+                  rx={PILL_RX}
+                  fill={PILL_FILL}
+                  stroke={PILL_STROKE}
+                  strokeWidth="0.8"
                 />
                 <text
-                  x={x + w / 2} y={y + PILL_H / 2}
+                  x={80}
+                  y={tag.centerY}
                   textAnchor="middle"
                   dominantBaseline="middle"
                   fill="white"
-                  fontFamily="Arial, Helvetica, sans-serif"
-                  fontSize="15"
+                  fontFamily="'Helvetica', Arial, sans-serif"
+                  fontSize="16"
+                  fontWeight="400"
                 >
-                  {label}
+                  {tag.label}
+                </text>
+              </g>
+            ))}
+
+            {/* ── Right tag pills ─────────────────────────────────── */}
+            {RIGHT_TAGS.map((tag) => (
+              <g key={tag.label}>
+                <rect
+                  x={590}
+                  y={tag.y}
+                  width={115}
+                  height={PILL_H}
+                  rx={PILL_RX}
+                  fill={PILL_FILL}
+                  stroke={PILL_STROKE}
+                  strokeWidth="0.8"
+                />
+                <text
+                  x={647.5}
+                  y={tag.centerY}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill="white"
+                  fontFamily="'Helvetica', Arial, sans-serif"
+                  fontSize="16"
+                  fontWeight="400"
+                >
+                  {tag.label}
                 </text>
               </g>
             ))}
@@ -135,7 +173,7 @@ export default function Hero() {
               className="w-[240px] object-contain"
             />
             <div className="flex flex-wrap gap-2 justify-center">
-              {[...LEFT_TAGS, ...RIGHT_TAGS.map(t => t.label)].map(label => (
+              {[...LEFT_TAGS.map(t => t.label), ...RIGHT_TAGS.map(t => t.label)].map(label => (
                 <div key={label} className="tag-pill">{label}</div>
               ))}
             </div>

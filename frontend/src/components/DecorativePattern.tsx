@@ -1,11 +1,11 @@
 export default function DecorativePattern() {
-  const yellowCount = 16;
-  const blueCount = 15;
+  const yellowCount = 60;
+  const blueCount = 60;
 
   return (
-    <div className="w-full overflow-hidden">
+    <div className="w-full overflow-hidden select-none pointer-events-none" aria-hidden="true">
       {/* Row 1: Yellow blocks */}
-      <div className="flex">
+      <div className="flex w-max">
         {Array.from({ length: yellowCount }).map((_, i) => (
           <div
             key={i}
@@ -20,7 +20,7 @@ export default function DecorativePattern() {
         ))}
       </div>
       {/* Row 2: Blue blocks, offset */}
-      <div className="flex" style={{ marginLeft: "45px" }}>
+      <div className="flex w-max" style={{ marginLeft: "45px" }}>
         {Array.from({ length: blueCount }).map((_, i) => (
           <div
             key={i}
