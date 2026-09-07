@@ -132,111 +132,144 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
   return (
     <div className="flex h-full min-h-screen bg-[#010106] text-white overflow-x-hidden w-full">
       {/* ── Sidebar ── */}
-      <aside className="w-[290px] shrink-0 flex flex-col pt-0 pb-8 border-r border-[rgba(91,141,184,0.2)]">
+      {/* ── Sidebar ── */}
+      <aside className="w-[280px] min-w-[280px] shrink-0 min-h-screen flex flex-col bg-[#010106] border-r border-[rgba(91,141,184,0.18)]">
         {/* Logo */}
         <button
           onClick={() => onNavigate("home")}
-          className="w-[220px] mx-auto mt-[-7px] mb-4 bg-transparent border-none p-0 cursor-pointer hover:opacity-85 transition-opacity"
+          className="flex items-center justify-center pt-5 pb-4 px-4 bg-transparent border-none cursor-pointer hover:opacity-85 transition-opacity"
           title="Return to Home"
         >
           <img
-            src={logoImg}
+            src="/logo.svg"
             alt="MCP Sentinel"
-            className="w-full object-contain pointer-events-none"
+            className="w-[170px] h-auto object-contain pointer-events-none"
           />
         </button>
 
         {/* Nav */}
-        <nav className="flex flex-col gap-[10px] px-4">
+        <nav className="flex flex-col gap-1.5 px-3 pt-2">
           {/* Home */}
-          <SidebarItem
+          <button
             onClick={() => handleNavClick("home")}
-            icon={
+            className="flex items-center gap-3.5 w-full h-[46px] px-4 rounded-[14px] text-left transition-colors cursor-pointer text-[#9c9c9c] hover:text-white hover:bg-white/5 border border-transparent"
+          >
+            <span className="w-[22px] h-[22px] flex items-center justify-center shrink-0 text-[#81c5ff]">
               <svg width="22" height="19" viewBox="0 0 22 19" fill="none">
-                <path d="M1 9.5L11 1L21 9.5V18H14V12H8V18H1V9.5Z" stroke="#81C5FF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1 9.5L11 1L21 9.5V18H14V12H8V18H1V9.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-            }
-            label="Home"
-          />
+            </span>
+            <span className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[16px] leading-none whitespace-nowrap">Home</span>
+          </button>
 
           {/* Dashboard */}
-          <SidebarItem
+          <button
             onClick={() => handleNavClick("dashboard")}
-            active={currentTab === "dashboard"}
-            icon={
+            className={`flex items-center gap-3.5 w-full h-[46px] px-4 rounded-[14px] text-left transition-colors cursor-pointer ${
+              currentTab === "dashboard"
+                ? "border border-[#81c5ff] text-[#81c5ff] bg-[rgba(129,197,255,0.06)]"
+                : "text-[#9c9c9c] hover:text-white hover:bg-white/5 border border-transparent"
+            }`}
+          >
+            <span className="w-[22px] h-[22px] flex items-center justify-center shrink-0 text-[#81c5ff]">
               <svg width="22" height="18.94" viewBox="0 0 22 18.9444" fill="none">
-                <path d={svgPaths.p5955d00} fill="#81C5FF" />
+                <path d={svgPaths.p5955d00} fill="currentColor" />
               </svg>
-            }
-            label="Dashboard"
-          />
+            </span>
+            <span className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[16px] leading-none whitespace-nowrap">Dashboard</span>
+          </button>
 
           {/* Handshake Monitor */}
-          <SidebarItem
+          <button
             onClick={() => handleNavClick("handshake")}
-            active={currentTab === "handshake"}
-            icon={
+            className={`flex items-center gap-3.5 w-full h-[46px] px-4 rounded-[14px] text-left transition-colors cursor-pointer ${
+              currentTab === "handshake"
+                ? "border border-[#81c5ff] text-[#81c5ff] bg-[rgba(129,197,255,0.06)]"
+                : "text-[#9c9c9c] hover:text-white hover:bg-white/5 border border-transparent"
+            }`}
+          >
+            <span className="w-[22px] h-[22px] flex items-center justify-center shrink-0 text-[#81c5ff]">
               <svg width="20" height="18" viewBox="0 0 20 18" fill="none">
-                <path d={svgPaths.pd404c00} fill="#81C5FF" />
+                <path d={svgPaths.pd404c00} fill="currentColor" />
               </svg>
-            }
-            label="Handshake Monitor"
-          />
+            </span>
+            <span className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[16px] leading-none whitespace-nowrap">Handshake Monitor</span>
+          </button>
 
-          {/* Server Registry – active */}
-          <SidebarItem
+          {/* Server Registry */}
+          <button
             onClick={() => handleNavClick("registry")}
-            active={currentTab === "registry"}
-            icon={
+            className={`flex items-center gap-3.5 w-full h-[46px] px-4 rounded-[14px] text-left transition-colors cursor-pointer ${
+              currentTab === "registry"
+                ? "border border-[#81c5ff] text-[#81c5ff] bg-[rgba(129,197,255,0.06)]"
+                : "text-[#9c9c9c] hover:text-white hover:bg-white/5 border border-transparent"
+            }`}
+          >
+            <span className="w-[22px] h-[22px] flex items-center justify-center shrink-0 text-[#81c5ff]">
               <svg width="17.19" height="14.09" viewBox="0 0 17.1875 14.0938" fill="none">
-                <path d={svgPaths.p14d71100} fill="#81C5FF" />
+                <path d={svgPaths.p14d71100} fill="currentColor" />
               </svg>
-            }
-            label="Server Registry"
-          />
+            </span>
+            <span className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[16px] leading-none whitespace-nowrap">Server Registry</span>
+          </button>
 
           {/* Live Traffic */}
-          <SidebarItem
+          <button
             onClick={() => handleNavClick("traffic")}
-            active={currentTab === "traffic"}
-            icon={
+            className={`flex items-center gap-3.5 w-full h-[46px] px-4 rounded-[14px] text-left transition-colors cursor-pointer ${
+              currentTab === "traffic"
+                ? "border border-[#81c5ff] text-[#81c5ff] bg-[rgba(129,197,255,0.06)]"
+                : "text-[#9c9c9c] hover:text-white hover:bg-white/5 border border-transparent"
+            }`}
+          >
+            <span className="w-[22px] h-[22px] flex items-center justify-center shrink-0 text-[#81c5ff]">
               <svg width="21.65" height="17.5" viewBox="0 0 21.649 17.5013" fill="none">
-                <path d={svgPaths.p288dcd00} fill="#81C5FF" />
+                <path d={svgPaths.p288dcd00} fill="currentColor" />
               </svg>
-            }
-            label="Live Traffic"
-          />
+            </span>
+            <span className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[16px] leading-none whitespace-nowrap">Live Traffic</span>
+          </button>
 
           {/* Threats */}
-          <SidebarItem
+          <button
             onClick={() => handleNavClick("threats")}
-            active={currentTab === "threats"}
-            icon={
+            className={`flex items-center gap-3.5 w-full h-[46px] px-4 rounded-[14px] text-left transition-colors cursor-pointer ${
+              currentTab === "threats"
+                ? "border border-[#81c5ff] text-[#81c5ff] bg-[rgba(129,197,255,0.06)]"
+                : "text-[#9c9c9c] hover:text-white hover:bg-white/5 border border-transparent"
+            }`}
+          >
+            <span className="w-[22px] h-[22px] flex items-center justify-center shrink-0 text-[#81c5ff]">
               <svg width="20" height="18" viewBox="0 0 19.9999 17.9999" fill="none">
-                <path d={svgPaths.p369822b2} fill="#81C5FF" />
+                <path d={svgPaths.p369822b2} fill="currentColor" />
               </svg>
-            }
-            label="Threats"
-          />
+            </span>
+            <span className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[16px] leading-none whitespace-nowrap">Threats</span>
+          </button>
 
           {/* Policy & Settings */}
-          <SidebarItem
+          <button
             onClick={() => handleNavClick("settings")}
-            active={currentTab === "settings"}
-            icon={
+            className={`flex items-center gap-3.5 w-full h-[46px] px-4 rounded-[14px] text-left transition-colors cursor-pointer ${
+              currentTab === "settings"
+                ? "border border-[#81c5ff] text-[#81c5ff] bg-[rgba(129,197,255,0.06)]"
+                : "text-[#9c9c9c] hover:text-white hover:bg-white/5 border border-transparent"
+            }`}
+          >
+            <span className="w-[22px] h-[22px] flex items-center justify-center shrink-0 text-[#81c5ff]">
               <svg width="21.87" height="21.87" viewBox="0 0 21.8711 21.8711" fill="none">
-                <path d={svgPaths.p245a1f80} fill="#81C5FF" />
+                <path d={svgPaths.p245a1f80} fill="currentColor" />
               </svg>
-            }
-            label="Policy & Settings"
-          />
+            </span>
+            <span className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[16px] leading-none whitespace-nowrap">Policy & Settings</span>
+          </button>
         </nav>
       </aside>
 
       {/* ── Main content ── */}
-      <main className="flex-1 min-w-0 flex flex-col px-8 py-8 gap-6 overflow-y-auto">
+      <main className="flex-1 min-w-0 px-8 lg:px-10 py-8 overflow-y-auto">
         {/* Top Breadcrumb & Action */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2 text-sm text-[#81c5ff]/80">
             <button
               onClick={() => onNavigate("home")}
@@ -249,38 +282,28 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
           </div>
 
           <button
-            onClick={() => onNavigate("home")}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#81c5ff]/30 text-[#81c5ff] hover:bg-[#81c5ff]/10 transition-colors text-sm font-['Helvetica',sans-serif] bg-transparent cursor-pointer"
+            onClick={handleArmorAll}
+            disabled={isPatching}
+            className="shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-[#81c5ff] bg-[rgba(129,197,255,0.1)] text-[#81c5ff] font-['Helvetica',sans-serif] text-[13px] whitespace-nowrap hover:bg-[rgba(129,197,255,0.18)] transition-colors cursor-pointer"
           >
-            ← Back to Landing
+            {isPatching ? "ARMORING..." : "🛡️ AUTO-ARMOR ALL SERVERS"}
           </button>
         </div>
 
         {/* Status message banner */}
         {statusMessage && (
-          <div className="bg-[#5fe3b3]/10 border border-[#5fe3b3] text-[#5fe3b3] px-4 py-2 rounded-lg text-sm font-helvetica flex items-center justify-between">
+          <div className="bg-[#5fe3b3]/10 border border-[#5fe3b3] text-[#5fe3b3] px-4 py-2 rounded-lg text-sm font-helvetica flex items-center justify-between mb-4">
             <span>{statusMessage}</span>
           </div>
         )}
 
         {/* Header row */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="font-['Conthrax',sans-serif] font-semibold text-[#81c5ff] text-[42px] leading-tight tracking-wide">
-              Server Registry
-            </h1>
-            <p className="font-['Helvetica',sans-serif] text-white text-[16px] mt-1">
-              Tracks every MCP server ever connected, its trust state, and its full history across Antigravity, Claude, and Cursor.
-            </p>
-          </div>
-          <button
-            onClick={handleArmorAll}
-            disabled={isPatching}
-            className="shrink-0 mt-2 flex items-center gap-1.5 px-4 h-[32px] rounded-[9px] border border-[#81c5ff] bg-[rgba(129,197,255,0.1)] text-[#81c5ff] font-['Helvetica',sans-serif] text-[12px] whitespace-nowrap hover:bg-[rgba(129,197,255,0.18)] transition-colors cursor-pointer"
-          >
-            {isPatching ? "ARMORING..." : "🛡️ AUTO-ARMOR ALL SERVERS"}
-          </button>
-        </div>
+        <h1 className="font-conthrax text-[#81c5ff] text-[36px] lg:text-[40px] leading-tight tracking-wide mb-2">
+          Server Registry
+        </h1>
+        <p className="font-['Helvetica',Helvetica,Arial,sans-serif] text-white/70 text-[15px] lg:text-[16px] mb-6 max-w-[800px] leading-relaxed">
+          Tracks every MCP server ever connected, its trust state, and its full history across Antigravity, Claude, and Cursor.
+        </p>
 
         {/* Stat cards */}
         <div className="grid grid-cols-4 gap-4">
@@ -297,7 +320,7 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
               </svg>
             </div>
             <div>
-              <div className="font-['Conthrax',sans-serif] font-semibold text-white text-[38px] leading-none">{serverData.total}</div>
+              <div className="font-['Helvetica',Helvetica,Arial,sans-serif] font-normal text-white text-[38px] leading-none">{serverData.total}</div>
               <div className="font-['Helvetica',sans-serif] text-[#9c9c9c] text-[15px] mt-1">Total servers</div>
             </div>
           </div>
@@ -321,7 +344,7 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
               </div>
             </div>
             <div>
-              <div className="font-['Conthrax',sans-serif] font-semibold text-white text-[38px] leading-none">{serverData.trusted}</div>
+              <div className="font-['Helvetica',Helvetica,Arial,sans-serif] font-normal text-white text-[38px] leading-none">{serverData.trusted}</div>
               <div className="font-['Helvetica',sans-serif] text-[#9c9c9c] text-[15px] mt-1">Trusted</div>
             </div>
           </div>
@@ -334,7 +357,7 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
               </svg>
             </div>
             <div>
-              <div className="font-['Conthrax',sans-serif] font-semibold text-white text-[38px] leading-none">{serverData.quarantined}</div>
+              <div className="font-['Helvetica',Helvetica,Arial,sans-serif] font-normal text-white text-[38px] leading-none">{serverData.quarantined}</div>
               <div className="font-['Helvetica',sans-serif] text-[#9c9c9c] text-[15px] mt-1">Quarantined</div>
             </div>
           </div>
@@ -348,7 +371,7 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
               </svg>
             </div>
             <div>
-              <div className="font-['Conthrax',sans-serif] font-semibold text-white text-[38px] leading-none">{serverData.removed}</div>
+              <div className="font-['Helvetica',Helvetica,Arial,sans-serif] font-normal text-white text-[38px] leading-none">{serverData.removed}</div>
               <div className="font-['Helvetica',sans-serif] text-[#9c9c9c] text-[15px] mt-1">Removed</div>
             </div>
           </div>

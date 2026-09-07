@@ -211,34 +211,34 @@ export default function DashboardPage({ onNavigate = () => {} }: DashboardPagePr
   return (
     <div className="flex min-h-screen bg-[#010106]">
       {/* ── Sidebar ── */}
-      <aside className="flex flex-col bg-[#010106] border-r border-white/10 w-[292px] shrink-0 min-h-screen">
+      <aside className="w-[280px] min-w-[280px] shrink-0 min-h-screen flex flex-col bg-[#010106] border-r border-[rgba(91,141,184,0.18)]">
         <button
           onClick={() => onNavigate("home")}
-          className="flex justify-center -mb-4 bg-transparent border-none cursor-pointer hover:opacity-85 transition-opacity"
+          className="flex items-center justify-center pt-5 pb-4 px-4 bg-transparent border-none cursor-pointer hover:opacity-85 transition-opacity"
           title="Return to Home"
         >
           <img
-            src={mcpLogo}
+            src="/logo.svg"
             alt="MCP Sentinel"
-            className="w-[220px] h-[220px] object-contain pointer-events-none"
+            className="w-[170px] h-auto object-contain pointer-events-none"
           />
         </button>
 
-        <nav className="flex flex-col gap-1 px-3">
+        <nav className="flex flex-col gap-1.5 px-3 pt-2">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`flex items-center gap-5 w-full px-4 py-3 rounded-[12px] text-left transition-colors cursor-pointer ${
+              className={`flex items-center gap-3.5 w-full h-[46px] px-4 rounded-[14px] text-left transition-colors cursor-pointer ${
                 item.active
                   ? "border border-[#81c5ff] text-[#81c5ff] bg-[rgba(129,197,255,0.06)]"
                   : "text-[#9c9c9c] hover:text-white hover:bg-white/5 border border-transparent"
               }`}
             >
-              <span className={item.active ? "text-[#81c5ff]" : "text-[#81c5ff]"}>
+              <span className="w-[22px] h-[22px] flex items-center justify-center shrink-0 text-[#81c5ff]">
                 {item.icon}
               </span>
-              <span className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[22px] leading-none whitespace-nowrap">
+              <span className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[16px] leading-none whitespace-nowrap">
                 {item.label}
               </span>
             </button>
@@ -247,10 +247,10 @@ export default function DashboardPage({ onNavigate = () => {} }: DashboardPagePr
       </aside>
 
       {/* ── Main content ── */}
-      <main className="flex-1 px-8 py-10 overflow-y-auto">
+      <main className="flex-1 min-w-0 px-8 lg:px-10 py-8 overflow-y-auto">
         {/* Header */}
         <div className="flex items-start justify-between mb-2">
-          <h1 className="font-['Orbitron',sans-serif] font-semibold text-[#81c5ff] text-[40px] leading-tight">
+          <h1 className="font-conthrax text-[#81c5ff] text-[36px] lg:text-[40px] leading-tight tracking-wide">
             Dashboard
           </h1>
           {status?.daemon && (
@@ -262,7 +262,7 @@ export default function DashboardPage({ onNavigate = () => {} }: DashboardPagePr
             </div>
           )}
         </div>
-        <p className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[#9c9c9c] text-[18px] mb-8">
+        <p className="font-['Helvetica',Helvetica,Arial,sans-serif] text-white/70 text-[15px] lg:text-[16px] mb-6 max-w-[800px] leading-relaxed">
           Monitor MCP connections, threats and protection in real time.
         </p>
 

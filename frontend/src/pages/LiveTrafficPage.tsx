@@ -167,53 +167,43 @@ const NAV = [
   { id: "settings",  label: "Policy & Settings",  icon: IconSettings    },
 ];
 
-function Sidebar({ currentTab, onSelectTab, onNavigate }: SidebarProps) {
+function Sidebar({ currentTab, onNavigate }: SidebarProps) {
   return (
-    <aside className="w-[290px] shrink-0 flex flex-col pt-0 pb-8 border-r border-[rgba(91,141,184,0.2)] bg-[#010106] h-full overflow-y-auto">
+    <aside className="w-[280px] min-w-[280px] shrink-0 min-h-screen flex flex-col bg-[#010106] border-r border-[rgba(91,141,184,0.18)]">
       {/* Logo */}
       <button
         onClick={() => onNavigate("home")}
-        className="w-[220px] mx-auto mt-[-7px] mb-4 bg-transparent border-none p-0 cursor-pointer hover:opacity-85 transition-opacity"
+        className="flex items-center justify-center pt-5 pb-4 px-4 bg-transparent border-none cursor-pointer hover:opacity-85 transition-opacity"
         title="Return to Home"
       >
-        <img src={logoImg} alt="MCP Sentinel" className="w-full object-contain pointer-events-none" />
+        <img
+          src="/logo.svg"
+          alt="MCP Sentinel"
+          className="w-[170px] h-auto object-contain pointer-events-none"
+        />
       </button>
 
       {/* Nav */}
-      <nav className="flex flex-col gap-[10px] px-4">
+      <nav className="flex flex-col gap-1.5 px-3 pt-2">
         {NAV.map(({ id, label, icon: Icon }) => {
           const active = id === currentTab;
           return (
-            <div
+            <button
               key={id}
-              onClick={() => {
-                onSelectTab(id);
-                if (id === "home") onNavigate("home");
-                else if (id === "dashboard") onNavigate("dashboard");
-                else if (id === "handshake") onNavigate("handshake");
-                else if (id === "registry") onNavigate("registry");
-                else if (id === "traffic") onNavigate("traffic");
-                else if (id === "threats") onNavigate("threats");
-                else if (id === "settings") onNavigate("settings");
-              }}
-              className={`relative flex items-center gap-5 px-4 py-2 rounded-[20px] cursor-pointer transition-colors hover:bg-[rgba(129,197,255,0.05)] ${
-                active ? "bg-[rgba(129,197,255,0.03)]" : ""
+              onClick={() => onNavigate(id)}
+              className={`flex items-center gap-3.5 w-full h-[46px] px-4 rounded-[14px] text-left transition-colors cursor-pointer ${
+                active
+                  ? "border border-[#81c5ff] text-[#81c5ff] bg-[rgba(129,197,255,0.06)]"
+                  : "text-[#9c9c9c] hover:text-white hover:bg-white/5 border border-transparent"
               }`}
             >
-              {active && (
-                <div className="absolute inset-0 border border-[#81c5ff] rounded-[20px] pointer-events-none" />
-              )}
-              <div className="w-[22px] h-[22px] flex items-center justify-center shrink-0 relative z-10 text-[#81c5ff]">
+              <span className="w-[22px] h-[22px] flex items-center justify-center shrink-0 text-[#81c5ff]">
                 <Icon />
-              </div>
-              <span
-                className={`font-['Helvetica',sans-serif] text-[18px] leading-normal relative z-10 ${
-                  active ? "text-[#81c5ff]" : "text-[#9c9c9c]"
-                }`}
-              >
+              </span>
+              <span className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[16px] leading-none whitespace-nowrap">
                 {label}
               </span>
-            </div>
+            </button>
           );
         })}
       </nav>
@@ -241,7 +231,7 @@ function StatCard({
     >
       <div className="flex flex-col gap-1">
         <span
-          className="text-white leading-none font-conthrax text-[36px]"
+          className="text-white leading-none font-['Helvetica',Helvetica,Arial,sans-serif] text-[36px] font-normal"
         >
           {value}
         </span>
@@ -342,7 +332,7 @@ function DlpStat({
       <div className="flex items-center gap-2">
         <span className="shrink-0">{icon}</span>
         <span
-          className="text-white text-[24px] font-conthrax leading-none"
+          className="text-white text-[24px] font-['Helvetica',Helvetica,Arial,sans-serif] leading-none font-normal"
         >
           {value}
         </span>
@@ -409,7 +399,7 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
   };
 
   return (
-    <div className="flex h-full min-h-screen bg-[#010106] text-white overflow-hidden w-full">
+    <div className="flex min-h-screen bg-[#010106]">
       <Sidebar
         currentTab={currentTab}
         onSelectTab={setCurrentTab}
@@ -417,7 +407,7 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
       />
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto px-8 py-8">
+      <main className="flex-1 min-w-0 px-8 lg:px-10 py-8 overflow-y-auto">
         {/* Top Breadcrumb & Action */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2 text-sm text-[#81c5ff]/80 font-helvetica">
@@ -434,53 +424,15 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
               {isConnected ? "Live Stream Active" : "Polling Mode"}
             </span>
           </div>
-
-          <div className="flex items-center gap-3">
-            {/* Quick simulation dropdown / buttons for testing */}
-            <button
-              onClick={() => handleSimulate("leak")}
-              className="px-2.5 py-1 rounded text-xs border border-[#ff383c]/50 text-[#ff383c] hover:bg-[#ff383c]/10 bg-transparent cursor-pointer font-helvetica"
-              title="Simulate credential leak"
-            >
-              + Sim Secret Leak
-            </button>
-            <button
-              onClick={() => handleSimulate("injection")}
-              className="px-2.5 py-1 rounded text-xs border border-[#ffd561]/50 text-[#ffd561] hover:bg-[#ffd561]/10 bg-transparent cursor-pointer font-helvetica"
-              title="Simulate prompt injection"
-            >
-              + Sim Injection
-            </button>
-            <button
-              onClick={() => handleSimulate("safe")}
-              className="px-2.5 py-1 rounded text-xs border border-[#34c759]/50 text-[#34c759] hover:bg-[#34c759]/10 bg-transparent cursor-pointer font-helvetica"
-              title="Simulate safe query"
-            >
-              + Sim Safe Query
-            </button>
-
-            <button
-              onClick={() => onNavigate("home")}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#81c5ff]/30 text-[#81c5ff] hover:bg-[#81c5ff]/10 transition-colors text-sm font-helvetica bg-transparent cursor-pointer"
-            >
-              ← Back to Landing
-            </button>
-          </div>
         </div>
 
         {/* Header */}
-        <div className="mb-6">
-          <h1
-            className="text-[#81c5ff] leading-tight mb-1 font-conthrax text-[42px]"
-          >
-            Live Traffic
-          </h1>
-          <p
-            className="text-white text-[16px] font-helvetica"
-          >
-            Visualizes runtime tools/call inspection and blocked exfiltration attempts in real time.
-          </p>
-        </div>
+        <h1 className="font-conthrax text-[#81c5ff] text-[36px] lg:text-[40px] leading-tight tracking-wide mb-2">
+          Live Traffic
+        </h1>
+        <p className="font-['Helvetica',Helvetica,Arial,sans-serif] text-white/70 text-[15px] lg:text-[16px] mb-6 max-w-[800px] leading-relaxed">
+          Visualizes runtime tools/call inspection and blocked exfiltration attempts in real time.
+        </p>
 
         {/* Stat Cards */}
         <div className="flex flex-wrap gap-4 mb-6">

@@ -156,53 +156,43 @@ const NAV_ITEMS = [
   { id: "settings",  label: "Policy & Settings",  icon: IconSettings    },
 ];
 
-function Sidebar({ currentTab, onSelectTab, onNavigate }: SidebarProps) {
+function Sidebar({ currentTab, onNavigate }: SidebarProps) {
   return (
-    <aside className="w-[280px] shrink-0 flex flex-col pt-0 pb-8 border-r border-[rgba(91,141,184,0.18)] bg-[#010106] h-full overflow-y-auto">
+    <aside className="w-[280px] min-w-[280px] shrink-0 min-h-screen flex flex-col bg-[#010106] border-r border-[rgba(91,141,184,0.18)]">
       {/* Logo */}
       <button
         onClick={() => onNavigate("home")}
-        className="w-[220px] mx-auto mt-[-7px] mb-4 bg-transparent border-none p-0 cursor-pointer hover:opacity-85 transition-opacity"
+        className="flex items-center justify-center pt-5 pb-4 px-4 bg-transparent border-none cursor-pointer hover:opacity-85 transition-opacity"
         title="Return to Home"
       >
-        <img src={logoImg} alt="MCP Sentinel" className="w-full object-contain pointer-events-none" />
+        <img
+          src="/logo.svg"
+          alt="MCP Sentinel"
+          className="w-[170px] h-auto object-contain pointer-events-none"
+        />
       </button>
 
       {/* Nav */}
-      <nav className="flex flex-col gap-[10px] px-4">
+      <nav className="flex flex-col gap-1.5 px-3 pt-2">
         {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
           const active = id === currentTab;
           return (
-            <div
+            <button
               key={id}
-              onClick={() => {
-                onSelectTab(id);
-                if (id === "home") onNavigate("home");
-                else if (id === "dashboard") onNavigate("dashboard");
-                else if (id === "handshake") onNavigate("handshake");
-                else if (id === "registry") onNavigate("registry");
-                else if (id === "traffic") onNavigate("traffic");
-                else if (id === "threats") onNavigate("threats");
-                else if (id === "settings") onNavigate("settings");
-              }}
-              className={`relative flex items-center gap-5 px-4 py-2 rounded-[20px] cursor-pointer transition-colors hover:bg-[rgba(129,197,255,0.05)] ${
-                active ? "bg-[rgba(129,197,255,0.03)]" : ""
+              onClick={() => onNavigate(id)}
+              className={`flex items-center gap-3.5 w-full h-[46px] px-4 rounded-[14px] text-left transition-colors cursor-pointer ${
+                active
+                  ? "border border-[#81c5ff] text-[#81c5ff] bg-[rgba(129,197,255,0.06)]"
+                  : "text-[#9c9c9c] hover:text-white hover:bg-white/5 border border-transparent"
               }`}
             >
-              {active && (
-                <div className="absolute inset-0 border border-[#81c5ff] rounded-[20px] pointer-events-none" />
-              )}
-              <div className="w-[22px] h-[22px] flex items-center justify-center shrink-0 relative z-10 text-[#81c5ff]">
+              <span className="w-[22px] h-[22px] flex items-center justify-center shrink-0 text-[#81c5ff]">
                 <Icon />
-              </div>
-              <span
-                className={`font-['Helvetica',sans-serif] text-[18px] leading-normal relative z-10 ${
-                  active ? "text-[#81c5ff]" : "text-[#9c9c9c]"
-                }`}
-              >
+              </span>
+              <span className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[16px] leading-none whitespace-nowrap">
                 {label}
               </span>
-            </div>
+            </button>
           );
         })}
       </nav>
@@ -302,27 +292,27 @@ export default function ThreatDetailPage({ onNavigate = () => {} }: ThreatDetail
   };
 
   return (
-    <div className="flex h-screen bg-[#010106] text-white overflow-hidden select-none">
+    <div className="flex min-h-screen bg-[#010106]">
       {/* Sidebar */}
       <Sidebar currentTab="threats" onSelectTab={() => {}} onNavigate={onNavigate} />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col h-full overflow-y-auto px-8 lg:px-12 py-8">
+      <main className="flex-1 min-w-0 px-8 lg:px-10 py-8 overflow-y-auto">
         {/* Breadcrumb / Top Bar */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2 text-[14px] text-[#5b8db8]">
+          <div className="flex items-center gap-2 text-sm text-[#81c5ff]/80 font-helvetica">
             <button
               onClick={() => onNavigate("traffic")}
-              className="bg-transparent border-none p-0 text-[#5b8db8] hover:text-[#81c5ff] cursor-pointer transition-colors font-helvetica"
+              className="text-[#81c5ff] hover:underline bg-transparent border-none cursor-pointer p-0 font-helvetica text-sm"
             >
               Live Traffic
             </button>
             <span>/</span>
-            <span className="text-[#81c5ff] font-medium">Incident #{incident.incidentId}</span>
+            <span className="text-white/60">Incident #{incident.incidentId}</span>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] bg-[rgba(255,56,60,0.15)] text-[#ff383c] border border-[rgba(255,56,60,0.3)]">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] bg-[rgba(255,56,60,0.15)] text-[#ff383c] border border-[rgba(255,56,60,0.3)] font-helvetica">
               <span className="w-2 h-2 rounded-full bg-[#ff383c] animate-pulse" />
               CRITICAL INCIDENT
             </span>
@@ -330,12 +320,12 @@ export default function ThreatDetailPage({ onNavigate = () => {} }: ThreatDetail
         </div>
 
         {/* Page title */}
-        <h1
-          style={{ fontFamily: CONTHRAX, fontWeight: 600 }}
-          className="text-[#81c5ff] text-[36px] lg:text-[44px] mb-8 leading-none tracking-wide"
-        >
+        <h1 className="font-conthrax text-[#81c5ff] text-[36px] lg:text-[40px] leading-tight tracking-wide mb-2">
           Threat Detail View
         </h1>
+        <p className="font-['Helvetica',Helvetica,Arial,sans-serif] text-white/70 text-[15px] lg:text-[16px] mb-6 max-w-[800px] leading-relaxed">
+          Deep packet and manifest analysis of quarantined tools and intercepted prompt injection payloads.
+        </p>
 
         {/* Tool Description */}
         <Card className="mb-5">

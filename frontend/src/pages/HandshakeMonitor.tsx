@@ -95,75 +95,43 @@ interface SidebarProps {
   onNavigate: (page: string) => void;
 }
 
-function Sidebar({ currentTab, onSelectTab, onNavigate }: SidebarProps) {
+function Sidebar({ currentTab, onNavigate }: SidebarProps) {
   return (
-    <aside
-      style={{ width: 303, minWidth: 303, background: "#010106", borderRight: "1px solid #181f2a" }}
-      className="flex flex-col min-h-screen shrink-0"
-    >
+    <aside className="w-[280px] min-w-[280px] shrink-0 min-h-screen flex flex-col bg-[#010106] border-r border-[rgba(91,141,184,0.18)]">
       {/* Logo */}
       <button
         onClick={() => onNavigate("home")}
-        style={{ height: 80, borderBottom: "1px solid #181f2a" }}
-        className="flex items-center justify-center px-4 bg-transparent border-none cursor-pointer w-full hover:opacity-85 transition-opacity"
+        className="flex items-center justify-center pt-5 pb-4 px-4 bg-transparent border-none cursor-pointer hover:opacity-85 transition-opacity"
         title="Return to Home"
       >
-        <img src={logoImg} alt="MCP Sentinel" style={{ height: 68, width: "auto", objectFit: "contain" }} />
+        <img
+          src="/logo.svg"
+          alt="MCP Sentinel"
+          className="w-[170px] h-auto object-contain pointer-events-none"
+        />
       </button>
 
       {/* Nav items */}
-      <nav style={{ paddingTop: 28, paddingLeft: 12, paddingRight: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+      <nav className="flex flex-col gap-1.5 px-3 pt-2">
         {NAV.map(({ id, label, icon: Icon }) => {
           const active = id === currentTab;
           return (
-            <div
+            <button
               key={id}
-              onClick={() => {
-                onSelectTab(id);
-                if (id === "home") {
-                  onNavigate("home");
-                } else if (id === "dashboard") {
-                  onNavigate("dashboard");
-                } else if (id === "registry") {
-                  onNavigate("registry");
-                } else if (id === "traffic") {
-                  onNavigate("traffic");
-                } else if (id === "threats") {
-                  onNavigate("threats");
-                } else if (id === "settings") {
-                  onNavigate("settings");
-                } else if (id === "handshake") {
-                  onNavigate("handshake");
-                }
-              }}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 18,
-                padding: "10px 16px",
-                borderRadius: 20,
-                border: active ? "1px solid #81c5ff" : "1px solid transparent",
-                cursor: "pointer",
-                background: active ? "rgba(129,197,255,0.03)" : "transparent",
-                transition: "all 0.15s ease",
-              }}
-              className="hover:bg-[rgba(129,197,255,0.05)]"
+              onClick={() => onNavigate(id)}
+              className={`flex items-center gap-3.5 w-full h-[46px] px-4 rounded-[14px] text-left transition-colors cursor-pointer ${
+                active
+                  ? "border border-[#81c5ff] text-[#81c5ff] bg-[rgba(129,197,255,0.06)]"
+                  : "text-[#9c9c9c] hover:text-white hover:bg-white/5 border border-transparent"
+              }`}
             >
-              <span style={{ color: active ? "#81c5ff" : "#9c9c9c", display: "flex", alignItems: "center" }}>
+              <span className="w-[22px] h-[22px] flex items-center justify-center shrink-0 text-[#81c5ff]">
                 <Icon />
               </span>
-              <span
-                style={{
-                  fontFamily: "'Helvetica', sans-serif",
-                  fontWeight: 400,
-                  fontSize: 20,
-                  color: active ? "#81c5ff" : "#9c9c9c",
-                  lineHeight: 1,
-                }}
-              >
+              <span className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[16px] leading-none whitespace-nowrap">
                 {label}
               </span>
-            </div>
+            </button>
           );
         })}
       </nav>
@@ -396,15 +364,14 @@ export default function HandshakeMonitor({ onNavigate, onNavigateHome }: Handsha
   const allowedCount = handshake?.allowedCount ?? pills.filter((p) => !p.blocked).length;
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#010106", width: "100%" }}>
+    <div className="flex min-h-screen bg-[#010106]">
       <Sidebar
         currentTab={currentTab}
         onSelectTab={setCurrentTab}
         onNavigate={handleNav}
       />
 
-      <main style={{ flex: 1, minWidth: 0, padding: "52px 40px 60px", overflowY: "auto" }}>
-
+      <main className="flex-1 min-w-0 px-8 lg:px-10 py-8 overflow-y-auto">
         {/* ── Top Bar Breadcrumb / Action ── */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2 text-sm text-[#81c5ff]/80">
@@ -422,47 +389,22 @@ export default function HandshakeMonitor({ onNavigate, onNavigateHome }: Handsha
             <button
               onClick={handleRunSimulation}
               disabled={isSimulating}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#34c759]/40 text-[#34c759] hover:bg-[#34c759]/10 transition-colors text-sm font-helvetica bg-transparent cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-[#34c759]/40 text-[#34c759] hover:bg-[#34c759]/10 transition-colors text-[13px] font-helvetica bg-transparent cursor-pointer disabled:opacity-50"
             >
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                 <path d="M4 2L13 8L4 14V2Z" fill="#34c759" />
               </svg>
               {isSimulating ? "Sanitizing..." : "Re-Scan Handshake"}
             </button>
-
-            <button
-              onClick={() => handleNav("home")}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#81c5ff]/30 text-[#81c5ff] hover:bg-[#81c5ff]/10 transition-colors text-sm font-helvetica bg-transparent cursor-pointer"
-            >
-              ← Back to Landing
-            </button>
           </div>
         </div>
 
         {/* ── Header ── */}
-        <h1
-          style={{
-            fontFamily: "'Conthrax', 'Orbitron', sans-serif",
-            fontWeight: 600,
-            fontSize: 44,
-            color: "#81c5ff",
-            lineHeight: 1,
-            margin: 0,
-            letterSpacing: "0.01em",
-          }}
-        >
+        <h1 className="font-conthrax text-[#81c5ff] text-[36px] lg:text-[40px] leading-tight tracking-wide mb-2">
           Handshake Monitor
         </h1>
-        <p
-          style={{
-            fontFamily: "'Helvetica', sans-serif",
-            fontSize: 17,
-            color: "#fff",
-            margin: "14px 0 36px",
-            lineHeight: 1.4,
-          }}
-        >
-          Visualizes the tools/list interception - the pre connection sanitization setup
+        <p className="font-['Helvetica',Helvetica,Arial,sans-serif] text-white/70 text-[15px] lg:text-[16px] mb-6 max-w-[800px] leading-relaxed">
+          Visualizes the tools/list interception — pre-connection sanitization and threat filtering.
         </p>
 
         {/* ── Flow card ── */}

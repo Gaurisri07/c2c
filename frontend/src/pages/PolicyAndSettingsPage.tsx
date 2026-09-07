@@ -245,17 +245,18 @@ export default function PolicyAndSettingsPage({ onNavigate = () => {} }: PolicyA
   return (
     <div className="flex min-h-screen bg-[#010106]">
       {/* ── Sidebar ── */}
-      <aside
-        style={{ width: 260, minWidth: 260, background: "#010106", borderRight: "1px solid rgba(129,197,255,0.12)" }}
-        className="flex flex-col min-h-screen shrink-0"
-      >
+      <aside className="w-[280px] min-w-[280px] shrink-0 min-h-screen flex flex-col bg-[#010106] border-r border-[rgba(91,141,184,0.18)]">
         {/* Logo block */}
         <button
           onClick={() => onNavigate("home")}
-          className="flex items-center justify-center p-4 bg-transparent border-none cursor-pointer w-full hover:opacity-85 transition-opacity"
+          className="flex items-center justify-center pt-5 pb-4 px-4 bg-transparent border-none cursor-pointer hover:opacity-85 transition-opacity"
           title="Return to Home"
         >
-          <img src={logoImg} alt="MCP Sentinel" className="w-[180px] h-auto object-contain pointer-events-none" />
+          <img
+            src="/logo.svg"
+            alt="MCP Sentinel"
+            className="w-[170px] h-auto object-contain pointer-events-none"
+          />
         </button>
 
         {/* Navigation items */}
@@ -266,19 +267,18 @@ export default function PolicyAndSettingsPage({ onNavigate = () => {} }: PolicyA
               <button
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
-                className={`flex items-center gap-3.5 w-full text-left px-3.5 py-2.5 rounded-[12px] transition-all cursor-pointer ${
-                  active ? "border border-[#81c5ff] bg-[rgba(129,197,255,0.06)]" : "border border-transparent hover:bg-[rgba(129,197,255,0.03)]"
+                className={`flex items-center gap-3.5 w-full h-[46px] px-4 rounded-[14px] text-left transition-colors cursor-pointer ${
+                  active
+                    ? "border border-[#81c5ff] text-[#81c5ff] bg-[rgba(129,197,255,0.06)]"
+                    : "text-[#9c9c9c] hover:text-white hover:bg-white/5 border border-transparent"
                 }`}
-                style={{
-                  color: active ? "#81c5ff" : "#9c9c9c",
-                  fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-                  fontSize: 14,
-                }}
               >
-                <span className="shrink-0 w-5 flex items-center justify-center">
+                <span className="w-[22px] h-[22px] flex items-center justify-center shrink-0 text-[#81c5ff]">
                   {item.icon}
                 </span>
-                <span className="whitespace-nowrap font-medium">{item.label}</span>
+                <span className="font-['Helvetica',Helvetica,Arial,sans-serif] text-[16px] leading-none whitespace-nowrap">
+                  {item.label}
+                </span>
               </button>
             );
           })}
@@ -286,36 +286,45 @@ export default function PolicyAndSettingsPage({ onNavigate = () => {} }: PolicyA
       </aside>
 
       {/* ── Main Content ── */}
-      <main className="flex-1 px-8 py-7 overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h1 className="font-['Conthrax:Semi_Bold',sans-serif] text-[36px] text-[#81c5ff] leading-none mb-2">
-              Policy &amp; Settings
-            </h1>
-            <p className="font-['Helvetica:Regular',sans-serif] text-[14px] text-white">
-              Configuration surface for the rules Sentinel enforces.
-            </p>
+      <main className="flex-1 min-w-0 px-8 lg:px-10 py-8 overflow-y-auto">
+        {/* Top Breadcrumb & Action */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2 text-sm text-[#81c5ff]/80 font-helvetica">
+            <button
+              onClick={() => onNavigate("home")}
+              className="text-[#81c5ff] hover:underline bg-transparent border-none cursor-pointer p-0 font-helvetica text-sm"
+            >
+              Home
+            </button>
+            <span>/</span>
+            <span className="text-white/60">Policy &amp; Settings</span>
           </div>
-          <div className="flex items-center gap-3 mt-1">
+
+          <div className="flex items-center gap-3">
             <button
               onClick={handleReset}
-              className="flex items-center gap-2 px-4 h-[34px] rounded-[10px] font-['Helvetica:Regular',sans-serif] text-[13px] text-[rgba(255,255,255,0.9)] whitespace-nowrap cursor-pointer hover:bg-[rgba(129,197,255,0.18)] transition-all"
-              style={{ background: "rgba(129,197,255,0.1)", border: "0.667px solid #81c5ff" }}
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-[#81c5ff]/40 bg-[rgba(129,197,255,0.1)] text-[#81c5ff] text-[13px] font-helvetica hover:bg-[rgba(129,197,255,0.18)] transition-all cursor-pointer"
             >
-              <img src={resetImg} alt="" className="w-[15px] h-[15px] object-contain pointer-events-none" />
+              <img src={resetImg} alt="" className="w-[14px] h-[14px] object-contain pointer-events-none" />
               Reset to default
             </button>
             <button
               onClick={handleSave}
-              className="flex items-center gap-2 px-4 h-[34px] rounded-[10px] font-['Helvetica:Regular',sans-serif] text-[13px] text-[rgba(255,255,255,0.9)] whitespace-nowrap cursor-pointer hover:bg-[rgba(95,227,179,0.2)] transition-all"
-              style={{ background: "rgba(95,227,179,0.12)", border: "0.667px solid #5fe3b3" }}
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-[#5fe3b3]/40 bg-[rgba(95,227,179,0.12)] text-[#5fe3b3] text-[13px] font-helvetica hover:bg-[rgba(95,227,179,0.2)] transition-all cursor-pointer"
             >
               <IconCheck />
               Save changes
             </button>
           </div>
         </div>
+
+        {/* Header */}
+        <h1 className="font-conthrax text-[#81c5ff] text-[36px] lg:text-[40px] leading-tight tracking-wide mb-2">
+          Policy &amp; Settings
+        </h1>
+        <p className="font-['Helvetica',Helvetica,Arial,sans-serif] text-white/70 text-[15px] lg:text-[16px] mb-6 max-w-[800px] leading-relaxed">
+          Configuration surface for the rules, thresholds, and data leak prevention mechanisms Sentinel enforces.
+        </p>
 
         {/* Toast Feedback */}
         {toastMessage && (
