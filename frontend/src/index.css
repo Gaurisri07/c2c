@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Plus+Jakarta+Sans:wght@600&family=Orbitron:wght@600&display=swap');
+@import 'tailwindcss';
+
+@font-face {
+  font-family: "Plus Jakarta Sans:SemiBold";
+  font-style: normal;
+  font-weight: 600;
+  src: url("https://static.figma.com/font/PlusJakartaSans_wght__2") format("woff2");
+}
+
+@font-face {
+  font-family: "Bungee:Regular";
+  src: url("https://static.figma.com/font/Bungee-Regular_1") format("woff2");
+}
+
+/* ── Conthrax Semi Bold (bundled OTF + WOFF) ───────────────────────────────── */
+@font-face {
+  font-family: 'Conthrax';
+  src: url('/fonts/conthrax-semibold.woff') format('woff'),
+       url('/fonts/conthrax-semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: block;
+}
+
+/* ── Inter as Helvetica substitute (bundled WOFF2) ─────────────────────────── */
+@font-face {
+  font-family: 'Helvetica';
+  src: url('/fonts/inter-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Helvetica';
+  src: url('/fonts/inter-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Helvetica Light';
+  src: url('/fonts/inter-light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: block;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  background-color: #010106;
+}
+
+/* Font fallbacks for unavailable local fonts */
+.font-conthrax {
+  font-family: 'Conthrax', 'Orbitron', 'Rajdhani', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.font-helvetica {
+  font-family: 'Helvetica', Arial, sans-serif;
+}
+
+.font-helvetica-light {
+  font-family: 'Helvetica Light', Arial, sans-serif;
+  font-weight: 300;
+}
+
+.font-bungee {
+  font-family: "Bungee:Regular", 'Bungee', cursive;
+  font-weight: 400;
+}
+
+.font-jakarta-semibold {
+  font-family: "Plus Jakarta Sans:SemiBold", 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+}
+
+/* Hero gradient text */
+.hero-gradient-text {
+  background: linear-gradient(to left, #81c5ff 32.212%, #ffd656);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Connector line animations */
+.connector-line {
+  stroke: #FEFEFE;
+  stroke-width: 1.08;
+}
+
+/* Decorative pattern rows */
+.pattern-row-yellow {
+  display: flex;
+  align-items: flex-start;
+}
+
+.pattern-row-blue {
+  display: flex;
+  align-items: flex-start;
+}
+
+/* Feature icon circle */
+.feature-icon-circle {
+  background: rgba(129, 197, 255, 0.4);
+  border: 1px solid white;
+  border-radius: 50%;
+  width: 69px;
+  height: 69px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Tag pill */
+.tag-pill {
+  background: rgba(129, 197, 255, 0.4);
+  border: 1px solid #fefefe;
+  border-radius: 10px;
+  padding: 0 12px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  color: white;
+}
+
+/* ── GitCrackers marquee ─────────────────────────────────── */
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.marquee-inner {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 28s linear infinite;
+}
+
+.marquee-item {
+  font-size: clamp(72px, 11vw, 150px);
+  letter-spacing: 0.03em;
+  padding-right: 1.2em; /* gap between the two copies */
+  line-height: 1;
+}
