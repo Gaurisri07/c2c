@@ -353,55 +353,6 @@ export default function ThreatDetailPage({ onNavigate = () => {} }: ThreatDetail
           </div>
         </Card>
 
-        {/* Row 1: SLM Verdict + Manual Override */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-          <Card>
-            <CardTitle icon={<IconBeatBlue />}>SLM Verdict</CardTitle>
-
-            <div className="flex items-center gap-4 mb-2">
-              <span className="text-[#ff383c] text-[38px] font-light leading-none">{incident.confidenceScore}%</span>
-              <span className="bg-[rgba(255,56,60,0.38)] text-white text-[11px] px-3 py-[5px] rounded-[30px] leading-none uppercase font-semibold">
-                {incident.verdict}
-              </span>
-            </div>
-
-            <p className="text-[#9c9c9c] text-[12px] mb-4 tracking-wide">
-              {incident.intent}
-            </p>
-            <p className="text-[rgba(255,255,255,0.82)] text-[13.5px] leading-relaxed">
-              {incident.description}
-            </p>
-          </Card>
-
-          <Card>
-            <CardTitle icon={<IconShieldCheck />}>Manual override</CardTitle>
-
-            <p className="text-[#9c9c9c] text-[13.5px] leading-relaxed mb-7">
-              For advanced users only. Restoring this tool bypasses Sentinel&apos;s block and
-              disables real-time manifest sanitization for this server session.
-            </p>
-
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleToggleOverride}
-                disabled={isUpdating}
-                className={`text-[14px] px-6 py-[11px] rounded-[12px] transition-all cursor-pointer tracking-wide font-medium ${
-                  restored
-                    ? "bg-[rgba(52,199,89,0.15)] border border-[#34c759] text-[#34c759] hover:bg-[rgba(52,199,89,0.25)]"
-                    : "border border-[#5b8db8] text-white hover:bg-[rgba(91,141,184,0.15)] hover:border-[#81c5ff]"
-                }`}
-              >
-                {restored ? "Tool Restored (Bypassed)" : "Restore tool anyway"}
-              </button>
-
-              {restored && (
-                <span className="text-[12px] text-[#34c759] flex items-center gap-1.5 animate-fadeIn">
-                  <IconCheck /> Safety block disabled
-                </span>
-              )}
-            </div>
-          </Card>
-        </div>
 
         {/* Row 2: Evidence Timeline + Tool Metadata */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-10">
