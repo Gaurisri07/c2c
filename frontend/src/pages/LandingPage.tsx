@@ -13,7 +13,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
   return (
     <div className="bg-[#010106] min-h-full w-full overflow-x-hidden">
       <Navbar currentPage="home" onNavigate={onNavigate} />
-      <Hero />
+      <Hero onNavigate={onNavigate} />
       <Features />
       <DecorativePattern />
       <GitCrackers />

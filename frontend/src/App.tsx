@@ -3,9 +3,13 @@ import LandingPage from "@/pages/LandingPage";
 import HandshakeMonitor from "@/pages/HandshakeMonitor";
 import ServerRegistryPage from "@/pages/ServerRegistryPage";
 import LiveTrafficPage from "@/pages/LiveTrafficPage";
+import ThreatDetailPage from "@/pages/ThreatDetailPage";
 
 function getPageFromHash(): string {
   const hash = window.location.hash.toLowerCase();
+  if (hash.includes("threat") || hash.includes("detail")) {
+    return "threats";
+  }
   if (hash.includes("traffic") || hash.includes("live")) {
     return "traffic";
   }
@@ -36,7 +40,9 @@ export default function App() {
 
   const navigateTo = (page: string) => {
     setCurrentPage(page);
-    if (page === "traffic" || page === "live-traffic") {
+    if (page === "threats" || page === "threat-detail") {
+      window.location.hash = "/threats";
+    } else if (page === "traffic" || page === "live-traffic") {
       window.location.hash = "/traffic";
     } else if (page === "handshake" || page === "dashboard") {
       window.location.hash = "/handshake";
@@ -47,17 +53,30 @@ export default function App() {
     }
   };
 
-  if (currentPage === "traffic") {
-    return <LiveTrafficPage onNavigate={navigateTo} />;
-  }
+  const renderPage = () => {
+    switch (currentPage) {
+      case "threats":
+        return <ThreatDetailPage onNavigate={navigateTo} />;
+      case "traffic":
+        return <LiveTrafficPage onNavigate={navigateTo} />;
+      case "registry":
+        return <ServerRegistryPage onNavigate={navigateTo} />;
+      case "handshake":
+        return (
+          <HandshakeMonitor
+            onNavigate={navigateTo}
+            onNavigateHome={() => navigateTo("home")}
+          />
+        );
+      default:
+        return <LandingPage onNavigate={navigateTo} />;
+    }
+  };
 
-  if (currentPage === "registry") {
-    return <ServerRegistryPage onNavigate={navigateTo} />;
-  }
-
-  if (currentPage === "handshake") {
-    return <HandshakeMonitor onNavigate={navigateTo} onNavigateHome={() => navigateTo("home")} />;
-  }
-
-  return <LandingPage onNavigate={navigateTo} />;
+  return (
+    <div key={currentPage} className="page-transition min-h-screen bg-[#010106]">
+      {renderPage()}
+    </div>
+  );
 }
+

@@ -1,4 +1,6 @@
+import { useState, useEffect } from "react";
 import imgShield from "@/imports/Homepage/15829d76de73831595d9c6553490e0c0e1dc6491.png";
+import { fetchSystemStatus, SystemStatus } from "@/services/api";
 
 // Circuit diagram coordinates (viewBox: "0 0 740 380")
 // Left pills: x=10 to x=150 (width=140, height=38, rx=10)
@@ -47,7 +49,19 @@ const PILL_FILL = "rgba(129,197,255,0.4)";
 const PILL_STROKE = "#fefefe";
 const LINE_COLOR = "#fefefe";
 
-export default function Hero() {
+interface HeroProps {
+  onNavigate?: (page: string) => void;
+}
+
+export default function Hero({ onNavigate }: HeroProps) {
+  const [status, setStatus] = useState<SystemStatus | null>(null);
+
+  useEffect(() => {
+    fetchSystemStatus().then((res) => {
+      if (res) setStatus(res);
+    });
+  }, []);
+
   return (
     <section className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 pt-6 pb-16">
       <div className="flex flex-col lg:flex-row items-start gap-10 lg:gap-6">
@@ -57,10 +71,56 @@ export default function Hero() {
           <h1 className="hero-gradient-text font-conthrax text-[48px] lg:text-[68px] leading-tight whitespace-pre-wrap mb-8">
             {`Trust Before \nYou Connect`}
           </h1>
-          <p className="font-helvetica text-white text-[20px] lg:text-[26px] text-justify leading-snug max-w-[580px]" style={{ opacity: 0.95 }}>
+          <p className="font-helvetica text-white text-[20px] lg:text-[26px] text-justify leading-snug max-w-[580px] mb-8" style={{ opacity: 0.95 }}>
             A security proxy that scans every MCP server&apos;s tools, permissions, and
             traffic — before your agent ever trusts them, and while it&apos;s using them.
           </p>
+
+          {/* Live Telemetry Bar */}
+          <div className="flex flex-wrap items-center gap-3 p-3.5 rounded-xl bg-[rgba(91,141,184,0.08)] border border-[rgba(91,141,184,0.25)] max-w-[580px]">
+            <div className="flex items-center gap-2 pr-3 border-r border-[rgba(91,141,184,0.3)]">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#34c759] animate-pulse" />
+              <span className="font-helvetica text-[13px] text-white/90">
+                Sentinel Daemon: <strong className="text-[#81c5ff]">ONLINE</strong>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 pr-3 border-r border-[rgba(91,141,184,0.3)]">
+              <span className="font-helvetica text-[13px] text-white/80">
+                Protected Servers: <strong className="text-white">{status?.servers.total ?? 4}</strong>
+              </span>
+            </div>
+
+            {onNavigate && (
+              <button
+                onClick={() => onNavigate("handshake")}
+                className="ml-auto text-[12px] font-conthrax text-[#81c5ff] hover:text-white transition-colors bg-transparent border-none cursor-pointer flex items-center gap-1"
+              >
+                Inspect Live →
+              </button>
+            )}
+          </div>
+
+          {/* Smooth Scroll Down to Features button */}
+          <div className="mt-8 flex items-center gap-3">
+            <button
+              onClick={() => {
+                document.getElementById("features")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-[rgba(129,197,255,0.3)] bg-[rgba(129,197,255,0.04)] hover:bg-[rgba(129,197,255,0.12)] text-[#81c5ff] text-[13px] font-helvetica cursor-pointer transition-all hover:scale-105 group"
+            >
+              <span>Explore Sentinel Features</span>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                className="transform group-hover:translate-y-0.5 transition-transform"
+              >
+                <path d="M8 2V13M8 13L3 8M8 13L13 8" stroke="#81C5FF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* ── Right column: Circuit diagram ───────────────────────── */}
@@ -74,9 +134,9 @@ export default function Hero() {
             className="hidden lg:block w-full max-w-[740px]"
             aria-label="MCP Sentinel diagram"
           >
-            {/* ── Shield image (Centered) ─────────────────────────── */}
+            {/* ── Shield vector image (Centered) ─────────────────────────── */}
             <image
-              href={imgShield}
+              href="/shield_final.svg"
               x={240}
               y={40}
               width={260}

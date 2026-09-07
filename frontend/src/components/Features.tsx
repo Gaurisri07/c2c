@@ -1,36 +1,40 @@
-import svgPaths from "@/imports/Homepage/svg-xq6m31p9wm";
-
 function SearchIcon() {
   return (
-    <svg fill="none" height="29" viewBox="0 0 29 29" width="29">
-      <path d={svgPaths.p1d1fae80} fill="white" />
-    </svg>
+    <img
+      src="/searchicon.svg"
+      alt="Detect Threats"
+      className="w-[29px] h-[29px] object-contain"
+    />
   );
 }
 
 function ShieldIcon() {
   return (
-    <svg fill="none" height="33" viewBox="0 0 30 33" width="29">
-      <path d={svgPaths.p63dc00} fill="white" />
-    </svg>
+    <img
+      src="/shieldicon.svg"
+      alt="Validate Permissions"
+      className="w-[29px] h-[33px] object-contain"
+    />
   );
 }
 
 function EyeIcon() {
   return (
-    <svg fill="none" height="24" viewBox="0 0 31 23" width="31">
-      <path d={svgPaths.p438a4f2} stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.92" />
-      <path d={svgPaths.pc39f680} stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.92" />
-    </svg>
+    <img
+      src="/eye.svg"
+      alt="Monitor Traffic"
+      className="w-[31px] h-[31px] object-contain"
+    />
   );
 }
 
 function FileIcon() {
   return (
-    <svg fill="none" height="27" viewBox="0 0 22 27" width="22">
-      <path d={svgPaths.p227f0c80} stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.58" />
-      <path d={svgPaths.p1153a300} stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.58" />
-    </svg>
+    <img
+      src="/note.svg"
+      alt="Control & Logs"
+      className="w-[27px] h-[27px] object-contain"
+    />
   );
 }
 

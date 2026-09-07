@@ -1,5 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logoImg from "@/imports/LiveTraffic/47202af915ec7162b9a01888274487160ee55234.png";
+import {
+  fetchTrafficLogs,
+  clearTrafficLogs,
+  simulateTrafficEvent,
+  subscribeTrafficStream,
+  StructuredLog,
+} from "@/services/api";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 
@@ -185,6 +192,7 @@ function Sidebar({ currentTab, onSelectTab, onNavigate }: SidebarProps) {
                 else if (id === "handshake" || id === "dashboard") onNavigate("handshake");
                 else if (id === "registry") onNavigate("registry");
                 else if (id === "traffic") onNavigate("traffic");
+                else if (id === "threats") onNavigate("threats");
               }}
               className={`relative flex items-center gap-5 px-4 py-2 rounded-[20px] cursor-pointer transition-colors hover:bg-[rgba(129,197,255,0.05)] ${
                 active ? "bg-[rgba(129,197,255,0.03)]" : ""
@@ -219,7 +227,7 @@ function StatCard({
   icon,
   borderColor,
 }: {
-  value: string;
+  value: string | number;
   label: string;
   icon: React.ReactNode;
   borderColor: string;
@@ -287,44 +295,30 @@ function StatusBadge({ status }: { status: LogStatus }) {
   );
 }
 
-function LogRow({
-  time,
-  call,
-  detail,
-  pill,
-  pillColor,
-  status,
-}: {
-  time: string;
-  call: string;
-  detail: string;
-  pill: string;
-  pillColor: PillColor;
-  status: LogStatus;
-}) {
+function LogRow({ log }: { log: StructuredLog }) {
   return (
     <div className="flex flex-wrap items-center gap-x-8 gap-y-2 py-3 border-b border-[rgba(91,141,184,0.15)] last:border-0 font-helvetica">
       <span
         className="text-[#9c9c9c] text-[16px] shrink-0 w-[85px] tabular-nums"
       >
-        {time}
+        {log.time}
       </span>
       <div className="flex flex-col gap-0.5 flex-1 min-w-[200px]">
         <span
           className="text-white text-[16px]"
         >
           <span className="text-[#81c5ff]/80">tools/call</span>{" "}
-          <span className="font-semibold text-white">{call}</span>
+          <span className="font-semibold text-white">{log.call}</span>
         </span>
         <span
           className="text-[#9c9c9c] text-[13.5px] truncate"
         >
-          {detail}
+          {log.detail}
         </span>
       </div>
       <div className="flex items-center gap-3 ml-auto shrink-0">
-        <Pill label={pill} color={pillColor} />
-        <StatusBadge status={status} />
+        <Pill label={log.pill} color={log.pillColor} />
+        <StatusBadge status={log.status} />
       </div>
     </div>
   );
@@ -337,7 +331,7 @@ function DlpStat({
   label,
   icon,
 }: {
-  value: string;
+  value: string | number;
   label: string;
   icon: React.ReactNode;
 }) {
@@ -368,6 +362,49 @@ interface LiveTrafficPageProps {
 
 export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPageProps) {
   const [currentTab, setCurrentTab] = useState("traffic");
+  const [logs, setLogs] = useState<StructuredLog[]>([]);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+
+  // Load initial logs and subscribe to real-time SSE stream
+  useEffect(() => {
+    fetchTrafficLogs().then((data) => {
+      if (data && data.logs) {
+        setLogs(data.logs);
+      }
+    });
+
+    const unsubscribe = subscribeTrafficStream(
+      (newLog) => {
+        if (!isPaused) {
+          setLogs((prev) => [newLog, ...prev]);
+        }
+      },
+      (connected) => {
+        setIsConnected(connected);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [isPaused]);
+
+  // Derived metrics
+  const toolCallsCount = logs.length;
+  const blockedCount = logs.filter((l) => l.status === "blocked").length;
+  const allowedCount = logs.filter((l) => l.status === "allowed").length;
+  const sensitivePatternsCount = logs.filter((l) => l.pill === ".env variable" || l.pill === "API token").length;
+
+  const handleClear = async () => {
+    await clearTrafficLogs();
+    setLogs([]);
+  };
+
+  const handleSimulate = async (type: "leak" | "injection" | "safe") => {
+    const entry = await simulateTrafficEvent(type);
+    if (entry && !isPaused) {
+      setLogs((prev) => [entry, ...prev]);
+    }
+  };
 
   return (
     <div className="flex h-full min-h-screen bg-[#010106] text-white overflow-hidden w-full">
@@ -390,14 +427,43 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
             </button>
             <span>/</span>
             <span className="text-white/60">Live Traffic</span>
+            <span className="ml-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-mono" style={{ background: isConnected ? "rgba(52,199,89,0.15)" : "rgba(255,56,60,0.15)", color: isConnected ? "#34C759" : "#FF383C" }}>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: isConnected ? "#34C759" : "#FF383C" }} />
+              {isConnected ? "Live Stream Active" : "Polling Mode"}
+            </span>
           </div>
 
-          <button
-            onClick={() => onNavigate("home")}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#81c5ff]/30 text-[#81c5ff] hover:bg-[#81c5ff]/10 transition-colors text-sm font-helvetica bg-transparent cursor-pointer"
-          >
-            ← Back to Landing
-          </button>
+          <div className="flex items-center gap-3">
+            {/* Quick simulation dropdown / buttons for testing */}
+            <button
+              onClick={() => handleSimulate("leak")}
+              className="px-2.5 py-1 rounded text-xs border border-[#ff383c]/50 text-[#ff383c] hover:bg-[#ff383c]/10 bg-transparent cursor-pointer font-helvetica"
+              title="Simulate credential leak"
+            >
+              + Sim Secret Leak
+            </button>
+            <button
+              onClick={() => handleSimulate("injection")}
+              className="px-2.5 py-1 rounded text-xs border border-[#ffd561]/50 text-[#ffd561] hover:bg-[#ffd561]/10 bg-transparent cursor-pointer font-helvetica"
+              title="Simulate prompt injection"
+            >
+              + Sim Injection
+            </button>
+            <button
+              onClick={() => handleSimulate("safe")}
+              className="px-2.5 py-1 rounded text-xs border border-[#34c759]/50 text-[#34c759] hover:bg-[#34c759]/10 bg-transparent cursor-pointer font-helvetica"
+              title="Simulate safe query"
+            >
+              + Sim Safe Query
+            </button>
+
+            <button
+              onClick={() => onNavigate("home")}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#81c5ff]/30 text-[#81c5ff] hover:bg-[#81c5ff]/10 transition-colors text-sm font-helvetica bg-transparent cursor-pointer"
+            >
+              ← Back to Landing
+            </button>
+          </div>
         </div>
 
         {/* Header */}
@@ -410,15 +476,15 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
           <p
             className="text-white text-[16px] font-helvetica"
           >
-            Visualizes runtime tools/call inspection and blocked exfiltration attempts.
+            Visualizes runtime tools/call inspection and blocked exfiltration attempts in real time.
           </p>
         </div>
 
         {/* Stat Cards */}
         <div className="flex flex-wrap gap-4 mb-6">
-          <StatCard value="12" label="Tool calls" icon={<IconTool />} borderColor="rgba(91,141,184,0.6)" />
-          <StatCard value="3" label="Blocked transfers" icon={<IconDanger />} borderColor="rgba(255,56,60,0.6)" />
-          <StatCard value="0" label="Sensitive data leaked" icon={<IconShield />} borderColor="rgba(91,141,184,0.6)" />
+          <StatCard value={toolCallsCount} label="Tool calls" icon={<IconTool />} borderColor="rgba(91,141,184,0.6)" />
+          <StatCard value={blockedCount} label="Blocked transfers" icon={<IconDanger />} borderColor="rgba(255,56,60,0.6)" />
+          <StatCard value={0} label="Sensitive data leaked" icon={<IconShield />} borderColor="rgba(91,141,184,0.6)" />
         </div>
 
         {/* Streaming Traffic Card */}
@@ -437,12 +503,18 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
             </div>
             <div className="flex gap-3">
               <button
-                className="flex items-center gap-2 px-4 h-9 rounded-[10px] text-[#81c5ff] text-[15px] transition-opacity hover:opacity-80 bg-[rgba(129,197,255,0.08)] border border-[#81c5ff] cursor-pointer font-helvetica"
+                onClick={() => setIsPaused(!isPaused)}
+                className={`flex items-center gap-2 px-4 h-9 rounded-[10px] text-[15px] transition-opacity hover:opacity-80 cursor-pointer font-helvetica ${
+                  isPaused
+                    ? "bg-[#ffd561]/20 border border-[#ffd561] text-[#ffd561]"
+                    : "bg-[rgba(129,197,255,0.08)] border border-[#81c5ff] text-[#81c5ff]"
+                }`}
               >
-                <span className="font-bold tracking-widest text-[14px]">| |</span>
-                Pause
+                <span className="font-bold tracking-widest text-[14px]">{isPaused ? "▶" : "| |"}</span>
+                {isPaused ? "Resume" : "Pause"}
               </button>
               <button
+                onClick={handleClear}
                 className="flex items-center gap-2 px-4 h-9 rounded-[10px] text-[#81c5ff] text-[15px] transition-opacity hover:opacity-80 bg-transparent border border-[#5b8db8] cursor-pointer font-helvetica"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -454,38 +526,13 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
           </div>
 
           {/* Log rows */}
-          <LogRow
-            time="14:00:11"
-            call="notion-mcp.create_page"
-            detail="payload.headers.Authorization: [BLOCKED]"
-            pill="API token"
-            pillColor="blue"
-            status="blocked"
-          />
-          <LogRow
-            time="14:02:06"
-            call="local-fs-mcp.read_file"
-            detail="response.body: DATABASE_URL= [BLOCKED]"
-            pill=".env variable"
-            pillColor="yellow"
-            status="blocked"
-          />
-          <LogRow
-            time="14:00:11"
-            call="notion-mcp.create_page"
-            detail="payload.headers.Authorization: [BLOCKED]"
-            pill="user query"
-            pillColor="green"
-            status="allowed"
-          />
-          <LogRow
-            time="14:02:06"
-            call="local-fs-mcp.read_file"
-            detail="response.body: DATABASE_URL= [BLOCKED]"
-            pill="file access"
-            pillColor="blue"
-            status="allowed"
-          />
+          <div className="max-h-[380px] overflow-y-auto">
+            {logs.length === 0 ? (
+              <p className="text-white/40 text-center py-8 font-helvetica">No live traffic recorded yet. Use the simulation buttons above to generate traffic events.</p>
+            ) : (
+              logs.map((log) => <LogRow key={log.id} log={log} />)
+            )}
+          </div>
         </div>
 
         {/* DLP Summary Card */}
@@ -505,22 +552,22 @@ export default function LiveTrafficPage({ onNavigate = () => {} }: LiveTrafficPa
           {/* DLP Stats */}
           <div className="flex flex-wrap gap-x-12 gap-y-4">
             <DlpStat
-              value="3"
+              value={blockedCount}
               label="Blocked transfers"
               icon={<IconRedTriangle size={20} />}
             />
             <DlpStat
-              value="5"
+              value={sensitivePatternsCount}
               label="Sensitive patterns detected"
               icon={<IconYellowWarn size={20} />}
             />
             <DlpStat
-              value="9"
+              value={allowedCount}
               label="Allowed calls"
               icon={<IconAutomate />}
             />
             <DlpStat
-              value="0"
+              value={0}
               label="Data leaked"
               icon={<IconShield />}
             />

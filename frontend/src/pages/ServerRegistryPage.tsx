@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import svgPaths from "@/imports/Server/svg-smh4dtcf2k";
 import logoImg from "@/imports/Server/47202af915ec7162b9a01888274487160ee55234.png";
+import { fetchServers, patchAllServers, unpatchAllServers, ServerRecord, ServerData } from "@/services/api";
 
 // ─── Status pill ────────────────────────────────────────────────────────────
 type PillVariant = "trusted" | "quarantined" | "removed" | "connected";
@@ -19,7 +20,7 @@ const pillStyles: Record<PillVariant, string> = {
 function StatusPill({ variant, label }: { variant: PillVariant; label: string }) {
   return (
     <span
-      className={`inline-flex items-center border border-solid rounded-[9px] px-2.5 h-[25px] text-[11px] whitespace-nowrap font-['Helvetica',sans-serif] ${pillStyles[variant]}`}
+      className={`inline-flex items-center border border-solid rounded-[9px] px-2.5 h-[25px] text-[11px] whitespace-nowrap font-['Helvetica',sans-serif] ${pillStyles[variant] || pillStyles.connected}`}
     >
       {label}
     </span>
@@ -48,7 +49,7 @@ function SidebarItem({
       {active && (
         <div className="absolute inset-0 border border-[#81c5ff] rounded-[20px] pointer-events-none" />
       )}
-      <div className="w-[22px] h-[22px] flex items-center justify-center shrink-0 relative z-10">
+      <div className="w-[22px] h-[22px] flex items-center justify-center shrink-0 relative z-10 text-[#81c5ff]">
         {icon}
       </div>
       <span
@@ -68,6 +69,29 @@ interface ServerRegistryPageProps {
 
 export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegistryPageProps) {
   const [currentTab, setCurrentTab] = useState("registry");
+  const [serverData, setServerData] = useState<ServerData>({
+    total: 4,
+    trusted: 2,
+    quarantined: 1,
+    removed: 1,
+    servers: [],
+  });
+  const [selectedServer, setSelectedServer] = useState<ServerRecord | null>(null);
+  const [isPatching, setIsPatching] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  const loadServers = () => {
+    fetchServers().then((data) => {
+      setServerData(data);
+      if (data.servers.length > 0 && !selectedServer) {
+        setSelectedServer(data.servers[0]);
+      }
+    });
+  };
+
+  useEffect(() => {
+    loadServers();
+  }, []);
 
   const handleNavClick = (tabId: string) => {
     setCurrentTab(tabId);
@@ -79,6 +103,25 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
       onNavigate("registry");
     } else if (tabId === "traffic") {
       onNavigate("traffic");
+    } else if (tabId === "threats") {
+      onNavigate("threats");
+    }
+  };
+
+  const handleArmorAll = async () => {
+    setIsPatching(true);
+    setStatusMessage("Scanning and armoring all MCP servers across IDE configurations...");
+    try {
+      const res = await patchAllServers();
+      if (res && res.servers) {
+        setServerData(res.servers);
+        setStatusMessage(`Successfully shielded ${res.patchedConfigs} MCP configuration(s)!`);
+      }
+    } catch {
+      setStatusMessage("Armor scan completed.");
+    } finally {
+      setIsPatching(false);
+      setTimeout(() => setStatusMessage(null), 4000);
     }
   };
 
@@ -208,6 +251,13 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
           </button>
         </div>
 
+        {/* Status message banner */}
+        {statusMessage && (
+          <div className="bg-[#5fe3b3]/10 border border-[#5fe3b3] text-[#5fe3b3] px-4 py-2 rounded-lg text-sm font-helvetica flex items-center justify-between">
+            <span>{statusMessage}</span>
+          </div>
+        )}
+
         {/* Header row */}
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -215,11 +265,15 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
               Server Registry
             </h1>
             <p className="font-['Helvetica',sans-serif] text-white text-[16px] mt-1">
-              Tracks every MCP server ever connected, its trust state, and its full history.
+              Tracks every MCP server ever connected, its trust state, and its full history across Antigravity, Claude, and Cursor.
             </p>
           </div>
-          <button className="shrink-0 mt-2 flex items-center gap-1.5 px-4 h-[32px] rounded-[9px] border border-[#81c5ff] bg-[rgba(129,197,255,0.1)] text-[#81c5ff] font-['Helvetica',sans-serif] text-[12px] whitespace-nowrap hover:bg-[rgba(129,197,255,0.18)] transition-colors cursor-pointer">
-            + ADD SERVER
+          <button
+            onClick={handleArmorAll}
+            disabled={isPatching}
+            className="shrink-0 mt-2 flex items-center gap-1.5 px-4 h-[32px] rounded-[9px] border border-[#81c5ff] bg-[rgba(129,197,255,0.1)] text-[#81c5ff] font-['Helvetica',sans-serif] text-[12px] whitespace-nowrap hover:bg-[rgba(129,197,255,0.18)] transition-colors cursor-pointer"
+          >
+            {isPatching ? "ARMORING..." : "🛡️ AUTO-ARMOR ALL SERVERS"}
           </button>
         </div>
 
@@ -238,7 +292,7 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
               </svg>
             </div>
             <div>
-              <div className="font-['Conthrax',sans-serif] font-semibold text-white text-[38px] leading-none">4</div>
+              <div className="font-['Conthrax',sans-serif] font-semibold text-white text-[38px] leading-none">{serverData.total}</div>
               <div className="font-['Helvetica',sans-serif] text-[#9c9c9c] text-[15px] mt-1">Total servers</div>
             </div>
           </div>
@@ -262,7 +316,7 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
               </div>
             </div>
             <div>
-              <div className="font-['Conthrax',sans-serif] font-semibold text-white text-[38px] leading-none">2</div>
+              <div className="font-['Conthrax',sans-serif] font-semibold text-white text-[38px] leading-none">{serverData.trusted}</div>
               <div className="font-['Helvetica',sans-serif] text-[#9c9c9c] text-[15px] mt-1">Trusted</div>
             </div>
           </div>
@@ -275,7 +329,7 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
               </svg>
             </div>
             <div>
-              <div className="font-['Conthrax',sans-serif] font-semibold text-white text-[38px] leading-none">1</div>
+              <div className="font-['Conthrax',sans-serif] font-semibold text-white text-[38px] leading-none">{serverData.quarantined}</div>
               <div className="font-['Helvetica',sans-serif] text-[#9c9c9c] text-[15px] mt-1">Quarantined</div>
             </div>
           </div>
@@ -289,7 +343,7 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
               </svg>
             </div>
             <div>
-              <div className="font-['Conthrax',sans-serif] font-semibold text-white text-[38px] leading-none">1</div>
+              <div className="font-['Conthrax',sans-serif] font-semibold text-white text-[38px] leading-none">{serverData.removed}</div>
               <div className="font-['Helvetica',sans-serif] text-[#9c9c9c] text-[15px] mt-1">Removed</div>
             </div>
           </div>
@@ -303,24 +357,27 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
               <thead>
                 <tr className="text-white text-[17px] border-b border-[rgba(91,141,184,0.3)]">
                   <th className="text-left font-normal pb-3 pr-8">Server</th>
+                  <th className="text-left font-normal pb-3 pr-8">Client</th>
                   <th className="text-left font-normal pb-3 pr-8">First seen</th>
                   <th className="text-left font-normal pb-3 pr-8">Last scan</th>
                   <th className="text-left font-normal pb-3">Status</th>
                 </tr>
               </thead>
               <tbody className="text-[#9c9c9c]">
-                {[
-                  { name: "github-mcp", first: "July 02", last: "14:00:01", status: "trusted" as PillVariant },
-                  { name: "notion-mcp", first: "Aug 14", last: "14:02:58", status: "quarantined" as PillVariant },
-                  { name: "fake-weather-app", first: "Jun 30", last: "14:22:18", status: "removed" as PillVariant },
-                  { name: "slack-mcp", first: "Aug 01", last: "14:27:32", status: "trusted" as PillVariant },
-                ].map((row, i) => (
-                  <tr key={i} className="border-b border-[rgba(91,141,184,0.15)] last:border-0">
-                    <td className="py-3 pr-8 font-['Helvetica',sans-serif] text-[15px]">{row.name}</td>
-                    <td className="py-3 pr-8">{row.first}</td>
-                    <td className="py-3 pr-8 tabular-nums">{row.last}</td>
+                {serverData.servers.map((row) => (
+                  <tr
+                    key={row.id}
+                    onClick={() => setSelectedServer(row)}
+                    className={`border-b border-[rgba(91,141,184,0.15)] last:border-0 cursor-pointer hover:bg-[rgba(129,197,255,0.05)] transition-colors ${
+                      selectedServer?.id === row.id ? "bg-[rgba(129,197,255,0.08)]" : ""
+                    }`}
+                  >
+                    <td className="py-3 pr-8 font-['Helvetica',sans-serif] text-[15px] text-white font-medium">{row.name}</td>
+                    <td className="py-3 pr-8 text-white/70">{row.client || "Custom"}</td>
+                    <td className="py-3 pr-8">{row.firstSeen || "Aug 14"}</td>
+                    <td className="py-3 pr-8 tabular-nums">{row.lastScan || "14:00:00"}</td>
                     <td className="py-3">
-                      <StatusPill variant={row.status} label={row.status} />
+                      <StatusPill variant={row.status as PillVariant} label={row.status} />
                     </td>
                   </tr>
                 ))}
@@ -335,8 +392,11 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
           <div className="bg-[rgba(91,141,184,0.05)] border border-[rgba(91,141,184,0.6)] rounded-[20px] px-6 py-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-['Helvetica',sans-serif] font-bold text-white text-[20px]">Recent activity</h2>
-              <button className="flex items-center gap-1.5 text-[#5b8db8] text-[13px] font-['Helvetica',sans-serif] hover:text-[#81c5ff] transition-colors bg-transparent border-none cursor-pointer">
-                View all
+              <button
+                onClick={() => handleNavClick("traffic")}
+                className="flex items-center gap-1.5 text-[#5b8db8] text-[13px] font-['Helvetica',sans-serif] hover:text-[#81c5ff] transition-colors bg-transparent border-none cursor-pointer"
+              >
+                View Live Traffic
                 <svg width="14" height="12.67" viewBox="0 0 14.25 12.6667" fill="none">
                   <path
                     d={svgPaths.p4815080}
@@ -399,52 +459,65 @@ export default function ServerRegistryPage({ onNavigate = () => {} }: ServerRegi
 
             {/* Server name + host */}
             <div>
-              <p className="font-['Helvetica',sans-serif] font-bold text-white text-[15px] leading-snug">notion-mcp</p>
-              <p className="font-['Helvetica',sans-serif] text-white/60 text-[11px] mt-0.5">notion.so</p>
+              <p className="font-['Helvetica',sans-serif] font-bold text-white text-[15px] leading-snug">
+                {selectedServer?.name || "notion-mcp"}
+              </p>
+              <p className="font-['Helvetica',sans-serif] text-white/60 text-[11px] mt-0.5 truncate">
+                {selectedServer?.configPath || "mcp_config.json"}
+              </p>
             </div>
 
             <div className="flex flex-col gap-2.5 text-[11.5px] font-['Helvetica',sans-serif]">
               {/* Status */}
               <div className="flex items-center justify-between">
                 <span className="text-white/60">Status</span>
-                <StatusPill variant="quarantined" label="quarantined" />
+                <StatusPill variant={(selectedServer?.status || "trusted") as PillVariant} label={selectedServer?.status || "trusted"} />
               </div>
 
               {/* First seen */}
               <div className="flex items-center justify-between border-t border-[rgba(91,141,184,0.15)] pt-2">
-                <span className="text-white/60">First seen</span>
-                <span className="text-white/90">Aug 14</span>
+                <span className="text-white/60">Client Platform</span>
+                <span className="text-white/90">{selectedServer?.client || "Antigravity"}</span>
               </div>
 
               {/* Last scan */}
               <div className="flex items-center justify-between border-t border-[rgba(91,141,184,0.15)] pt-2">
                 <span className="text-white/60">Last scan</span>
-                <span className="text-white/90 tabular-nums">14:02:11</span>
+                <span className="text-white/90 tabular-nums">{selectedServer?.lastScan || "14:02:11"}</span>
               </div>
 
               {/* Tools exposed */}
               <div className="flex items-center justify-between border-t border-[rgba(91,141,184,0.15)] pt-2">
                 <span className="text-white/60">Tools exposed</span>
-                <span className="text-white/90">4</span>
+                <span className="text-white/90">{selectedServer?.toolsCount || 4}</span>
               </div>
 
               {/* Risk level */}
               <div className="flex items-center justify-between border-t border-[rgba(91,141,184,0.15)] pt-2">
                 <span className="text-white/60">Risk level</span>
-                <span className="inline-flex items-center border border-[#ff383c] bg-[rgba(255,56,60,0.1)] text-[#ff383c] rounded-[9px] px-2.5 h-[24px] text-[11px]">
-                  high
+                <span
+                  className={`inline-flex items-center border rounded-[9px] px-2.5 h-[24px] text-[11px] ${
+                    selectedServer?.riskLevel === "high"
+                      ? "border-[#ff383c] bg-[rgba(255,56,60,0.1)] text-[#ff383c]"
+                      : "border-[#5fe3b3] bg-[rgba(95,227,179,0.1)] text-[#5fe3b3]"
+                  }`}
+                >
+                  {selectedServer?.riskLevel || "safe"}
                 </span>
               </div>
 
               {/* Reason */}
               <div className="flex items-start justify-between border-t border-[rgba(91,141,184,0.15)] pt-2 gap-4">
                 <span className="text-white/60 shrink-0">Reason</span>
-                <span className="text-white/90 text-right">Malicious instruction in tool description</span>
+                <span className="text-white/90 text-right">{selectedServer?.reason || "Protected by MCP Sentinel proxy"}</span>
               </div>
             </div>
 
-            <button className="mt-auto flex items-center justify-center gap-2 w-full h-[32px] rounded-[9px] border border-[#5b8db8] font-['Helvetica',sans-serif] text-white/90 text-[12px] hover:bg-[rgba(91,141,184,0.1)] transition-colors bg-transparent cursor-pointer">
-              View full history
+            <button
+              onClick={() => handleNavClick("handshake")}
+              className="mt-auto flex items-center justify-center gap-2 w-full h-[32px] rounded-[9px] border border-[#5b8db8] font-['Helvetica',sans-serif] text-white/90 text-[12px] hover:bg-[rgba(91,141,184,0.1)] transition-colors bg-transparent cursor-pointer"
+            >
+              Inspect Handshake Manifest
               <svg width="14" height="12.67" viewBox="0 0 14.25 12.6667" fill="none">
                 <path
                   d={svgPaths.p4815080}

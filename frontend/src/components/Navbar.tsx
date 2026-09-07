@@ -20,7 +20,7 @@ export default function Navbar({ currentPage = "home", onNavigate }: NavbarProps
           onClick={(e) => handleNav("home", e)}
           className="bg-transparent border-none p-0 cursor-pointer text-left flex items-center hover:opacity-85 transition-opacity"
         >
-          <img src={imgLogo} alt="MCP Sentinel" className="w-[180px] object-contain" />
+          <img src="/logo.svg" alt="MCP Sentinel" className="w-[180px] object-contain" onError={(e) => { (e.target as HTMLImageElement).src = imgLogo; }} />
         </button>
       </div>
       <div className="flex items-center gap-6 lg:gap-10">
@@ -36,12 +36,14 @@ export default function Navbar({ currentPage = "home", onNavigate }: NavbarProps
         <a
           href="#features"
           onClick={(e) => {
+            e.preventDefault();
             if (currentPage !== "home" && onNavigate) {
-              e.preventDefault();
               onNavigate("home");
               setTimeout(() => {
-                document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
-              }, 100);
+                document.getElementById("features")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }, 120);
+            } else {
+              document.getElementById("features")?.scrollIntoView({ behavior: "smooth", block: "start" });
             }
           }}
           className="font-conthrax text-[#fefefe] text-[16px] lg:text-[20px] no-underline hover:opacity-80 transition-opacity"
@@ -74,6 +76,15 @@ export default function Navbar({ currentPage = "home", onNavigate }: NavbarProps
           }`}
         >
           Live Traffic
+        </a>
+        <a
+          href="#/threats"
+          onClick={(e) => handleNav("threats", e)}
+          className={`font-conthrax text-[16px] lg:text-[20px] no-underline hover:opacity-80 transition-opacity ${
+            currentPage === "threats" ? "text-[#81c5ff]" : "text-[#fefefe]"
+          }`}
+        >
+          Threats
         </a>
       </div>
       <div className="w-[180px]" />
